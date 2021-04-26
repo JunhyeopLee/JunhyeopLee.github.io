@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-04-26T21:52:28+09:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Ph.D Candidate</title><subtitle>An amazing website.</subtitle><author><name>Junhyeop Lee</name></author><entry><title type="html">Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning</title><link href="http://localhost:4000/paper%20review/paper-review/" rel="alternate" type="text/html" title="Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning" /><published>2021-04-26T00:00:00+09:00</published><updated>2021-04-26T00:00:00+09:00</updated><id>http://localhost:4000/paper%20review/paper-review</id><content type="html" xml:base="http://localhost:4000/paper%20review/paper-review/">&lt;h1 id=&quot;abstract&quot;&gt;Abstract&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문&lt;/li&gt;
+  &lt;li&gt;이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함
+    &lt;h3 id=&quot;1-voxel-based&quot;&gt;1. Voxel-based&lt;/h3&gt;
+    &lt;ul&gt;
+      &lt;li&gt;그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss)&lt;/li&gt;
+      &lt;li&gt;resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue)
+        &lt;h3 id=&quot;2-point-based&quot;&gt;2. Point-based&lt;/h3&gt;
+      &lt;/li&gt;
+      &lt;li&gt;input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 &lt;strong&gt;&lt;em&gt;sparse data 구축 (실제로는 poor memory locality를 갖는 -&amp;gt; 단점)&lt;/em&gt;&lt;/strong&gt; 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 &lt;strong&gt;(memory &amp;amp; computation efficiency)&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;point를 활용하면서 memory consumption을 줄이고,&lt;/li&gt;
+      &lt;li&gt;voxel에서의 convolution을 수행하면서, irregular &amp;amp; sparse data access를 줄이고, locality를 좋게 만듦&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;semantic and part segmentation dataset에 대해 확인해보니,
+    &lt;ul&gt;
+      &lt;li&gt;voxel-based 방법들보다 &lt;strong&gt;10&lt;/strong&gt;X GPU memory reduction을 보이면서 높은 정확도를 보임&lt;/li&gt;
+      &lt;li&gt;point-based 방법들보다 평균 &lt;strong&gt;7&lt;/strong&gt;X speedup을 보임&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;motivation&quot;&gt;Motivation&lt;/h1&gt;
+&lt;ol&gt;
+  &lt;li&gt;Voxel-based models: Large Memory Footprint
+&lt;img src=&quot;/assets/images/2021-04-26-paper-review/fig2a.png&quot; alt=&quot;fig2a&quot; /&gt;
+    &lt;ul&gt;
+      &lt;li&gt;일반적으로 voxel-based representation은 regular하고, 좋은 memory locality를 갖음&lt;/li&gt;
+      &lt;li&gt;하지만, information loss를 줄이기위해 high-resolution을 가져야 함&lt;/li&gt;
+      &lt;li&gt;위 그림을 보면, point들이 뭉개지지 않고, 잘 구별가능할 정도가 되려면 resolution이 커져야 하며, GPU resource가 cubically 증가하게 되기에, &lt;strong&gt;voxel-based solution is not scalable!&lt;/strong&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Point-based models: Irregular Memory Access and Dynamic Kernel Overhead
+    &lt;ul&gt;
+      &lt;li&gt;일반적으로 point-based 3D modeling 방법들은 memory efficient함 (e.g., PointNet)&lt;/li&gt;
+      &lt;li&gt;하지만 local context modeling 능력이 떨어지기에, 후에 나온 논문들은 point domain에서의 주변 정보들을 통합/활용해서 PointNet의 표현력을 향상시킴!&lt;/li&gt;
+      &lt;li&gt;이런 노력에도 불구하고, 이는 irregular memory access pattern을 야기하며, dynamic kernal computation overhead가 붙게 됨 -&amp;gt; 또한 이는 효율성측면에서 bottleneck이 됨&lt;br /&gt;
+&lt;img src=&quot;/assets/images/2021-04-26-paper-review/fig2b.png&quot; alt=&quot;fig2b&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;다시 recap해보면,
+        &lt;ul&gt;
+          &lt;li&gt;&lt;strong&gt;Irregular memory access&lt;/strong&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;ul&gt;
+      &lt;li&gt;voxel-based와 달리, $x_k$의 주변 점들은 memory상에서 인접하여 놓여있지 않다. (unordered point structure)&lt;/li&gt;
+      &lt;li&gt;그래서 kNN과 같은 nearest neighbors 기법을 point coordinate space에서 하거나, feature space에서 함
+        &lt;ul&gt;
+          &lt;li&gt;coordinate상 또는 feature space 상에서 NN을 하는 것은 expensive computation을 요구함&lt;/li&gt;
+          &lt;li&gt;또한, 주변점들을 모을 때, large abount of random memory access가 필요함 -&amp;gt; not cache friendly.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;위 그림을 보면, PointCNN 또는 DGCNN만 보더라도, 전체 프로세스(Irregular Access -&amp;gt; Dynamic Kernel -&amp;gt; Actual Computation for feature extraction)에서 &lt;strong&gt;Irregular Access&lt;/strong&gt; 가 차지하는 비중이 대부분을 차지함
+      - &lt;strong&gt;Dynamic Kernel Computation&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;일반적인 2D와는 달리, point cloud에서의 point들은 irregular하게 산재해 있기 때문에, $x_k$의 주변점 $x_i$들이 each center $x_k$ 마다 달라짐.&lt;/li&gt;
+      &lt;li&gt;즉, kernel K(x_k, x_i)가 매 포인트 $x_k$ 마다 계속 calculate 하는 작업 필요&lt;/li&gt;
+      &lt;li&gt;마찬가지, 위 그림을 보면, PointCNN의 경우, &lt;strong&gt;Dynamic Kernel Computation&lt;/strong&gt; 가 차지하는 비중이 매우 큼&lt;/li&gt;
+      &lt;li&gt;합쳐서 생각해보면, 실제 feature extraction을 위한 computation하는 비중이 DGCNN(45%), PointCNN(12%) 로 매우 적음&lt;/li&gt;
+      &lt;li&gt;즉, point-based 방법들에서 이뤄지는 연산들의 대부분이 irregularity를 다루기 위해 사용됨 -&amp;gt; 비효율적임!!&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h1 id=&quot;point-voxel-convolution&quot;&gt;Point-Voxel Convolution&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&quot;/assets/images/2021-04-26-paper-review/fig3.png&quot; alt=&quot;fig3&quot; /&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;기존 voxel- 과 point-based 방법들의 bottleneck들에 대해 분석을 기반으로, hardware-efficient한 primitive를 제안함 -&amp;gt; Point-Voxel Convolution (PVConv)
+    &lt;ul&gt;
+      &lt;li&gt;point-based 방법들의 장점(small memory footprint)와 voxel-based 방법들의 장점(good data locality and regularity)를 섞음&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;즉, 위 그림처럼 2개의 brach를 통해서 voxel-based feature (&lt;strong&gt;coarse-grained feature&lt;/strong&gt;) + point-wise feaeture (&lt;strong&gt;fine-grained feature&lt;/strong&gt;) 를 combine함
+    &lt;ul&gt;
+      &lt;li&gt;upper voxel-based branch
+        &lt;ul&gt;
+          &lt;li&gt;주변 point들의 정보를 활용해서 voxelize / devoxelize를 진행&lt;/li&gt;
+          &lt;li&gt;한번 scan해서 voxelize/devoxelize하기에, memory cost 가 낮음
+            &lt;ul&gt;
+              &lt;li&gt;&lt;strong&gt;&lt;em&gt;원래는 voxel-based는 high-resolution을 유지하기 어려움 -&amp;gt; gpu resource 때문에&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;strong&gt;&lt;em&gt;그 단점을 point-based branch에서 매꿔줌&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;lower point-based branch
+        &lt;ul&gt;
+          &lt;li&gt;주변 point 정보 활용하지 않고, 개개의 point들에 대해서 feature 추출함&lt;/li&gt;
+          &lt;li&gt;주변 정보 활용안하니, high resolution을 유지해도 됨
+            &lt;ul&gt;
+              &lt;li&gt;&lt;strong&gt;&lt;em&gt;원래는 주변 정보들 indexing(for NN)하는 작업들이 issue였는데, 여기에서는 그 작업을 안함&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+              &lt;li&gt;&lt;strong&gt;&lt;em&gt;주변 정보들 활용은 voxel-based branch에서 다룸&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;pvconv&quot;&gt;PVConv&lt;/h1&gt;</content><author><name>Junhyeop Lee</name></author><category term="Paper Review" /><category term="NeurIPS" /><summary type="html">Abstract 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문 이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함 1. Voxel-based 그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss) resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue) 2. Point-based input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 sparse data 구축 (실제로는 poor memory locality를 갖는 -&amp;gt; 단점) 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함) 이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 (memory &amp;amp; computation efficiency) point를 활용하면서 memory consumption을 줄이고, voxel에서의 convolution을 수행하면서, irregular &amp;amp; sparse data access를 줄이고, locality를 좋게 만듦 semantic and part segmentation dataset에 대해 확인해보니, voxel-based 방법들보다 10X GPU memory reduction을 보이면서 높은 정확도를 보임 point-based 방법들보다 평균 7X speedup을 보임</summary></entry><entry><title type="html">Paper Review 1: [CVPR 2020] SampleNet: Differentiable Point Cloud Sampling</title><link href="http://localhost:4000/paper%20review/paper-review/" rel="alternate" type="text/html" title="Paper Review 1: [CVPR 2020] SampleNet: Differentiable Point Cloud Sampling" /><published>2021-04-25T00:00:00+09:00</published><updated>2021-04-25T00:00:00+09:00</updated><id>http://localhost:4000/paper%20review/paper-review</id><content type="html" xml:base="http://localhost:4000/paper%20review/paper-review/">&lt;h1 id=&quot;들어가며&quot;&gt;들어가며&lt;/h1&gt;
+&lt;p&gt;Point cloud를 활용한 여러 논문들 대부분은 (물론 Deep Learning 활용) Farthest Point Sampling (FPS) 라고 하는 sampling 기법을 사용한다. [&lt;a href=&quot;https://arxiv.org/pdf/1612.00593.pdf&quot;&gt;FPS ref논문 link&lt;/a&gt;]&lt;/p&gt;
+
+&lt;p&gt;여러 Lidar point cloud 를 활용한 논문들 (ex. lidar scene segmentation, lidar object detection 등) 또한, backbone에 PointNet MLP 구조를 따르며, 이 때, FPS를 활용하여 sampling 된 point cloud 를 활용한다.&lt;/p&gt;
+
+&lt;p&gt;하지만, 이 논문에서는 이 부분에 대해서 tackle을 걸며, differentiable한 sampling 방법을 제안하며, FPS를 활용했을 때보다 성능이 좋음을 보여주며 CVPR 20 oral에 선정되었다.&lt;/p&gt;
+
+&lt;!-- # Intro  --&gt;</content><author><name>Junhyeop Lee</name></author><category term="Paper Review" /><category term="CVPR" /><summary type="html">들어가며 Point cloud를 활용한 여러 논문들 대부분은 (물론 Deep Learning 활용) Farthest Point Sampling (FPS) 라고 하는 sampling 기법을 사용한다. [FPS ref논문 link]</summary></entry><entry><title type="html">First post</title><link href="http://localhost:4000/paper%20review/first-post/" rel="alternate" type="text/html" title="First post" /><published>2021-04-24T00:00:00+09:00</published><updated>2021-04-24T00:00:00+09:00</updated><id>http://localhost:4000/paper%20review/first-post</id><content type="html" xml:base="http://localhost:4000/paper%20review/first-post/">&lt;h1 id=&quot;introduction-for-this-blog&quot;&gt;Introduction for this blog&lt;/h1&gt;
+
+&lt;h2 id=&quot;purpose-of-this-blog&quot;&gt;Purpose of this blog&lt;/h2&gt;
+&lt;p&gt;박사과정 중 논문 읽고 정리하는데, 뭔가 깔끔한 정리가 필요할 것 같아, 처음에는 아이패드로 논문 읽고 정리하기 시작했고, 그러다보니 좋은 논문들, 또는 내가 나중에 해보고 싶은 연구들? 그런 것들을 따로 더 정리를 했으면 좋겠다 해서 이 블로그를 시작함&lt;/p&gt;</content><author><name>Junhyeop Lee</name></author><category term="Paper Review" /><category term="test" /><summary type="html">Introduction for this blog</summary></entry></feed>

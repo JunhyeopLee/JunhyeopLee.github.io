@@ -1,0 +1,676 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.21.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning - Ph.D Candidate</title>
+<meta name="description" content="Abstract    3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문   이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함     1. Voxel-based            그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss)       resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue)         2. Point-based              input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 sparse data 구축 (실제로는 poor memory locality를 갖는 -&gt; 단점) 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)           이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 (memory &amp; computation efficiency)            point를 활용하면서 memory consumption을 줄이고,       voxel에서의 convolution을 수행하면서, irregular &amp; sparse data access를 줄이고, locality를 좋게 만듦           semantic and part segmentation dataset에 대해 확인해보니,            voxel-based 방법들보다 10X GPU memory reduction을 보이면서 높은 정확도를 보임       point-based 방법들보다 평균 7X speedup을 보임">
+
+
+  <meta name="author" content="Junhyeop Lee">
+  
+  <meta property="article:author" content="Junhyeop Lee">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Ph.D Candidate">
+<meta property="og:title" content="Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning">
+<meta property="og:url" content="http://localhost:4000/paper%20review/paper-review/">
+
+
+  <meta property="og:description" content="Abstract    3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문   이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함     1. Voxel-based            그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss)       resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue)         2. Point-based              input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 sparse data 구축 (실제로는 poor memory locality를 갖는 -&gt; 단점) 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)           이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 (memory &amp; computation efficiency)            point를 활용하면서 memory consumption을 줄이고,       voxel에서의 convolution을 수행하면서, irregular &amp; sparse data access를 줄이고, locality를 좋게 만듦           semantic and part segmentation dataset에 대해 확인해보니,            voxel-based 방법들보다 10X GPU memory reduction을 보이면서 높은 정확도를 보임       point-based 방법들보다 평균 7X speedup을 보임">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2021-04-26T00:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/paper%20review/paper-review/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Junhyeop Lee",
+      "url": "http://localhost:4000/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Ph.D Candidate Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Ph.D Candidate
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/">Paper Reviews</a>
+            </li><li class="masthead__menu-item">
+              <a href="/cv/">About</a>
+            </li><li class="masthead__menu-item">
+              <a href="/publications/">Publications</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#paper-review" itemprop="item"><span itemprop="name">Paper review</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+        <img src="/assets/images/Junhyeop.jpg" alt="Junhyeop Lee" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">Junhyeop Lee</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>Ph.D candidate. Research topic is computer vision and multi-modal processing (2D to 3D, RGB-Depth, Audio-Visual)</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">Yonsei University, South Korea</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="mailto:jun.lee@yonsei.ac.kr" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i><span class="label">Email</span></a></li>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning">
+    <meta itemprop="description" content="Abstract  3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문  이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함    1. Voxel-based          그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss)      resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue)        2. Point-based            input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 sparse data 구축 (실제로는 poor memory locality를 갖는 -&gt; 단점) 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)        이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 (memory &amp; computation efficiency)          point를 활용하면서 memory consumption을 줄이고,      voxel에서의 convolution을 수행하면서, irregular &amp; sparse data access를 줄이고, locality를 좋게 만듦        semantic and part segmentation dataset에 대해 확인해보니,          voxel-based 방법들보다 10X GPU memory reduction을 보이면서 높은 정확도를 보임      point-based 방법들보다 평균 7X speedup을 보임      ">
+    <meta itemprop="datePublished" content="2021-04-26T00:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Paper Review 2: [NeurIPS 2019] Point-Voxel CNN for Efficient 3D Deep Learning
+</h1>
+          
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-calendar-alt" aria-hidden="true"></i>
+        <time datetime="2021-04-26T00:00:00+09:00">April 26, 2021</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <h1 id="abstract">Abstract</h1>
+<ul>
+  <li>3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문</li>
+  <li>이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함
+    <h3 id="1-voxel-based">1. Voxel-based</h3>
+    <ul>
+      <li>그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss)</li>
+      <li>resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue)
+        <h3 id="2-point-based">2. Point-based</h3>
+      </li>
+      <li>input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 <strong><em>sparse data 구축 (실제로는 poor memory locality를 갖는 -&gt; 단점)</em></strong> 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)</li>
+    </ul>
+  </li>
+  <li>이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 <strong>(memory &amp; computation efficiency)</strong>
+    <ul>
+      <li>point를 활용하면서 memory consumption을 줄이고,</li>
+      <li>voxel에서의 convolution을 수행하면서, irregular &amp; sparse data access를 줄이고, locality를 좋게 만듦</li>
+    </ul>
+  </li>
+  <li>semantic and part segmentation dataset에 대해 확인해보니,
+    <ul>
+      <li>voxel-based 방법들보다 <strong>10</strong>X GPU memory reduction을 보이면서 높은 정확도를 보임</li>
+      <li>point-based 방법들보다 평균 <strong>7</strong>X speedup을 보임</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="motivation">Motivation</h1>
+<ol>
+  <li>Voxel-based models: Large Memory Footprint
+<img src="/assets/images/2021-04-26-paper-review/fig2a.png" alt="fig2a" />
+    <ul>
+      <li>일반적으로 voxel-based representation은 regular하고, 좋은 memory locality를 갖음</li>
+      <li>하지만, information loss를 줄이기위해 high-resolution을 가져야 함</li>
+      <li>위 그림을 보면, point들이 뭉개지지 않고, 잘 구별가능할 정도가 되려면 resolution이 커져야 하며, GPU resource가 cubically 증가하게 되기에, <strong>voxel-based solution is not scalable!</strong></li>
+    </ul>
+  </li>
+  <li>Point-based models: Irregular Memory Access and Dynamic Kernel Overhead
+    <ul>
+      <li>일반적으로 point-based 3D modeling 방법들은 memory efficient함 (e.g., PointNet)</li>
+      <li>하지만 local context modeling 능력이 떨어지기에, 후에 나온 논문들은 point domain에서의 주변 정보들을 통합/활용해서 PointNet의 표현력을 향상시킴!</li>
+      <li>이런 노력에도 불구하고, 이는 irregular memory access pattern을 야기하며, dynamic kernal computation overhead가 붙게 됨 -&gt; 또한 이는 효율성측면에서 bottleneck이 됨<br />
+<img src="/assets/images/2021-04-26-paper-review/fig2b.png" alt="fig2b" /></li>
+      <li>다시 recap해보면,
+        <ul>
+          <li><strong>Irregular memory access</strong></li>
+        </ul>
+      </li>
+    </ul>
+    <ul>
+      <li>voxel-based와 달리, $x_k$의 주변 점들은 memory상에서 인접하여 놓여있지 않다. (unordered point structure)</li>
+      <li>그래서 kNN과 같은 nearest neighbors 기법을 point coordinate space에서 하거나, feature space에서 함
+        <ul>
+          <li>coordinate상 또는 feature space 상에서 NN을 하는 것은 expensive computation을 요구함</li>
+          <li>또한, 주변점들을 모을 때, large abount of random memory access가 필요함 -&gt; not cache friendly.</li>
+        </ul>
+      </li>
+      <li>위 그림을 보면, PointCNN 또는 DGCNN만 보더라도, 전체 프로세스(Irregular Access -&gt; Dynamic Kernel -&gt; Actual Computation for feature extraction)에서 <strong>Irregular Access</strong> 가 차지하는 비중이 대부분을 차지함
+      - <strong>Dynamic Kernel Computation</strong></li>
+      <li>일반적인 2D와는 달리, point cloud에서의 point들은 irregular하게 산재해 있기 때문에, $x_k$의 주변점 $x_i$들이 each center $x_k$ 마다 달라짐.</li>
+      <li>즉, kernel K(x_k, x_i)가 매 포인트 $x_k$ 마다 계속 calculate 하는 작업 필요</li>
+      <li>마찬가지, 위 그림을 보면, PointCNN의 경우, <strong>Dynamic Kernel Computation</strong> 가 차지하는 비중이 매우 큼</li>
+      <li>합쳐서 생각해보면, 실제 feature extraction을 위한 computation하는 비중이 DGCNN(45%), PointCNN(12%) 로 매우 적음</li>
+      <li>즉, point-based 방법들에서 이뤄지는 연산들의 대부분이 irregularity를 다루기 위해 사용됨 -&gt; 비효율적임!!</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="point-voxel-convolution">Point-Voxel Convolution</h1>
+<p><img src="/assets/images/2021-04-26-paper-review/fig3.png" alt="fig3" /></p>
+<ul>
+  <li>기존 voxel- 과 point-based 방법들의 bottleneck들에 대해 분석을 기반으로, hardware-efficient한 primitive를 제안함 -&gt; Point-Voxel Convolution (PVConv)
+    <ul>
+      <li>point-based 방법들의 장점(small memory footprint)와 voxel-based 방법들의 장점(good data locality and regularity)를 섞음</li>
+    </ul>
+  </li>
+  <li>즉, 위 그림처럼 2개의 brach를 통해서 voxel-based feature (<strong>coarse-grained feature</strong>) + point-wise feaeture (<strong>fine-grained feature</strong>) 를 combine함
+    <ul>
+      <li>upper voxel-based branch
+        <ul>
+          <li>주변 point들의 정보를 활용해서 voxelize / devoxelize를 진행</li>
+          <li>한번 scan해서 voxelize/devoxelize하기에, memory cost 가 낮음
+            <ul>
+              <li><strong><em>원래는 voxel-based는 high-resolution을 유지하기 어려움 -&gt; gpu resource 때문에</em></strong></li>
+              <li><strong><em>그 단점을 point-based branch에서 매꿔줌</em></strong></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>lower point-based branch
+        <ul>
+          <li>주변 point 정보 활용하지 않고, 개개의 point들에 대해서 feature 추출함</li>
+          <li>주변 정보 활용안하니, high resolution을 유지해도 됨
+            <ul>
+              <li><strong><em>원래는 주변 정보들 indexing(for NN)하는 작업들이 issue였는데, 여기에서는 그 작업을 안함</em></strong></li>
+              <li><strong><em>주변 정보들 활용은 voxel-based branch에서 다룸</em></strong></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="pvconv">PVConv</h1>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#neurips" class="page__taxonomy-item" rel="tag">NeurIPS</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#paper-review" class="page__taxonomy-item" rel="tag">Paper Review</a>
+    
+    </span>
+  </p>
+
+
+        
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2021-04-26T00:00:00+09:00">April 26, 2021</time></p>
+
+
+      </footer>
+
+      
+
+      
+  <nav class="pagination">
+    
+      <a href="/paper%20review/paper-review/" class="pagination--pager" title="Paper Review 1: [CVPR 2020] SampleNet: Differentiable Point Cloud Sampling
+">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You May Also Enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/paper%20review/paper-review/" rel="permalink">Paper Review 1: [CVPR 2020] SampleNet: Differentiable Point Cloud Sampling
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        <time datetime="2021-04-25T00:00:00+09:00">April 25, 2021</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">들어가며
+Point cloud를 활용한 여러 논문들 대부분은 (물론 Deep Learning 활용) Farthest Point Sampling (FPS) 라고 하는 sampling 기법을 사용한다. [FPS ref논문 link]
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/paper%20review/first-post/" rel="permalink">First post
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+      
+      <span class="page__meta-date">
+        <i class="far fa-fw fa-calendar-alt" aria-hidden="true"></i>
+        <time datetime="2021-04-24T00:00:00+09:00">April 24, 2021</time>
+      </span>
+    
+
+    <span class="page__meta-sep"></span>
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-fw fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">Introduction for this blog
+
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2021 Junhyeop Lee. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

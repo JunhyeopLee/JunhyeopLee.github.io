@@ -36,14 +36,14 @@ tags:
 ![fig2b](/assets/images/2021-04-26-paper-review/fig2b.png)
 - 다시 recap해보면,
   - **Irregular memory access**
-    - voxel-based와 달리, $x_k$의 주변 점들은 memory상에서 인접하여 놓여있지 않다. (unordered point structure)
+    - voxel-based와 달리, x<sub>k<sub>의 주변 점들은 memory상에서 인접하여 놓여있지 않다. (unordered point structure)
     - 그래서 kNN과 같은 nearest neighbors 기법을 point coordinate space에서 하거나, feature space에서 함
       - coordinate상 또는 feature space 상에서 NN을 하는 것은 expensive computation을 요구함
       - 또한, 주변점들을 모을 때, large abount of random memory access가 필요함 -> not cache friendly.
     - 위 그림을 보면, PointCNN 또는 DGCNN만 보더라도, 전체 프로세스(Irregular Access -> Dynamic Kernel -> Actual Computation for feature extraction)에서 **Irregular Access** 가 차지하는 비중이 대부분을 차지함
   - **Dynamic Kernel Computation**
-    - 일반적인 2D와는 달리, point cloud에서의 point들은 irregular하게 산재해 있기 때문에, $x_k$의 주변점 $x_i$들이 each center $x_k$ 마다 달라짐. 
-    - 즉, kernel K(x_k, x_i)가 매 포인트 $x_k$ 마다 계속 calculate 하는 작업 필요
+    - 일반적인 2D와는 달리, point cloud에서의 point들은 irregular하게 산재해 있기 때문에, x<sub>k<sub>의 주변점 x<sub>i<sub>들이 each center x<sub>k<sub> 마다 달라짐. 
+    - 즉, kernel K(x<sub>k<sub>, x<sub>i<sub>)가 매 포인트 x<sub>k<sub> 마다 계속 calculate 하는 작업 필요
     - 마찬가지, 위 그림을 보면, PointCNN의 경우, **Dynamic Kernel Computation** 가 차지하는 비중이 매우 큼
     - 합쳐서 생각해보면, 실제 feature extraction을 위한 computation하는 비중이 DGCNN(45%), PointCNN(12%) 로 매우 적음
     - 즉, point-based 방법들에서 이뤄지는 연산들의 대부분이 irregularity를 다루기 위해 사용됨 -> 비효율적임!!

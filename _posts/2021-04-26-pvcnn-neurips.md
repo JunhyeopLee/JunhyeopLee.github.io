@@ -53,7 +53,7 @@ tags:
 
 # Motivation
 1. Voxel-based models: Large Memory Footprint
-![fig2a](/assets/images/2021-04-26-paper-review/fig2a.png)
+![fig2a](/assets/images/2021-04-26-pvcnn-neurips/fig2a.png)
 - 일반적으로 voxel-based representation은 regular하고, 좋은 memory locality를 갖음
 - 하지만, information loss를 줄이기위해 high-resolution을 가져야 함
 - 위 그림을 보면, point들이 뭉개지지 않고, 잘 구별가능할 정도가 되려면 resolution이 커져야 하며, GPU resource가 cubically 증가하게 되기에, **voxel-based solution is not scalable!**
@@ -62,7 +62,7 @@ tags:
 - 일반적으로 point-based 3D modeling 방법들은 memory efficient함 (e.g., PointNet)
 - 하지만 local context modeling 능력이 떨어지기에, 후에 나온 논문들은 point domain에서의 주변 정보들을 통합/활용해서 PointNet의 표현력을 향상시킴!
 - 이런 노력에도 불구하고, 이는 irregular memory access pattern을 야기하며, dynamic kernal computation overhead가 붙게 됨 -> 또한 이는 효율성측면에서 bottleneck이 됨\
-![fig2b](/assets/images/2021-04-26-paper-review/fig2b.png)
+![fig2b](/assets/images/2021-04-26-pvcnn-neurips/fig2b.png)
 
 <br>
 
@@ -91,7 +91,7 @@ tags:
 ---
 
 # Point-Voxel Convolution
-![fig3](/assets/images/2021-04-26-paper-review/fig3.png)
+![fig3](/assets/images/2021-04-26-pvcnn-neurips/fig3.png)
 - 기존 voxel- 과 point-based 방법들의 bottleneck들에 대해 분석을 기반으로, hardware-efficient한 primitive를 제안함 -> Point-Voxel Convolution (PVConv)
   - point-based 방법들의 장점(small memory footprint)와 voxel-based 방법들의 장점(good data locality and regularity)를 섞음
 
@@ -121,11 +121,11 @@ tags:
       - 즉, $p_k$ 는 normalize되어서 $\hat p_k$ (=$(\hat x_k, \hat y_k, \hat z_k)$) 로 변학, $f_k$는 feature이기에 변하지 않음 (-> voxelize 안되니까!)
   
 2. Voxelization
-![eq2](/assets/images/2021-04-26-paper-review/eq2.png)
+![eq2](/assets/images/2021-04-26-pvcnn-neurips/eq2.png)
 
     - 위 식을 통해, normalized 된 point $\hat p_k$ (=$(\hat x_k, \hat y_k, \hat z_k)$) 는 $f_k$를 평균함으로써, voxel grid ${V_{u,v,w}}$ 로 변환됨
     - $r$은 voxel resolution
-    - ![binaryindicator](/assets/images/2021-04-26-paper-review/binaryindicator.png) 는 좌표 $\hat p_k$ 가 voxel grid $(u, v, w)$에 속하는지를 판별하는 binary indicator이다.
+    - ![binaryindicator](/assets/images/2021-04-26-pvcnn-neurips/binaryindicator.png) 는 좌표 $\hat p_k$ 가 voxel grid $(u, v, w)$에 속하는지를 판별하는 binary indicator이다.
     - **$f_{k,c}$** 는 $\hat p_k$ 의 c 번째 channel의 feature이다.
     - $N_{u,v,w}$는 normalize factor -> voxel grid안에 포함된 point들의 수
 
@@ -207,8 +207,8 @@ tags:
 ## Obejct Part Segmentation: ShapeNetPart
   - PointNet에서 MLP를 PVConv로 바꾸고, 3D-Unet구조
   
-![tab1](/assets/images/2021-04-26-paper-review/tab1.png)
-![fig4](/assets/images/2021-04-26-paper-review/fig4.png)
+![tab1](/assets/images/2021-04-26-pvcnn-neurips/tab1.png)
+![fig4](/assets/images/2021-04-26-pvcnn-neurips/fig4.png)
 
 ## Scene Segmentation: S3DIS
   - Area 5에 대해서 test 진행
@@ -216,8 +216,8 @@ tags:
     - 즉, SA 모듈 들어감
     - PointNet layer에서의 MLP 를 PVConv로 바꾼것임
 
-![tab4](/assets/images/2021-04-26-paper-review/tab4.png)
-![fig7](/assets/images/2021-04-26-paper-review/fig7.png)
+![tab4](/assets/images/2021-04-26-pvcnn-neurips/tab4.png)
+![fig7](/assets/images/2021-04-26-pvcnn-neurips/fig7.png)
 
 ## 3D Object Detection: KITTI
   - [[Qi et al. (F-PointNet)](https://openaccess.thecvf.com/content_cvpr_2018/papers/Qi_Frustum_PointNets_for_CVPR_2018_paper.pdf)] 처럼 training set 에서 val set을 만들었음
@@ -228,7 +228,7 @@ tags:
       (b). Complete Version
         - 위에서 더 나아가서, box estimation network에서의 MLP도 PVConv로 바꾼 것
         
-![tab5](/assets/images/2021-04-26-paper-review/tab5.png)
+![tab5](/assets/images/2021-04-26-pvcnn-neurips/tab5.png)
 
 ---
 

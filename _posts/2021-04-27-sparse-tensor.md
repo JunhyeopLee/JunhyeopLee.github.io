@@ -169,4 +169,4 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
   - [[4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural Networks, CVPR’19](https://arxiv.org/pdf/1904.08755.pdf)]
   - [[High-dimensional Convolutional Neural Networks for 3D Perception, Stanford University](https://purl.stanford.edu/fg022dx0979)]
     - [[Chapter 4. Sparse Tensor Networks](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]
----
+  

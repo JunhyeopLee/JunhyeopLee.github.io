@@ -167,5 +167,6 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
   - [[Minkowski Engine Doc](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)]
   - [[3D Semantic Segmentation with Submanifold Sparse Convolutional Neural Networks, CVPR’18](https://arxiv.org/pdf/1711.10275.pdf)]
   - [[4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural Networks, CVPR’19](https://arxiv.org/pdf/1904.08755.pdf)]
-  - [[High-dimensional Convolutional Neural Networks for 3D Perception, Stanford University](https://purl.stanford.edu/fg022dx0979)] [[Chapter 4. Sparse Tensor Networks](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]
+  - [[High-dimensional Convolutional Neural Networks for 3D Perception, Stanford University](https://purl.stanford.edu/fg022dx0979)]
+    - [[Chapter 4. Sparse Tensor Networks](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]
 ---

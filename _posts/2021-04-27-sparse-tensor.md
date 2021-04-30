@@ -1,6 +1,5 @@
 ---
-title: "Sparse Tensor Networks
-"
+title: "Sparse Tensor Networks at Minkoski Engine"
 categories:
   - Paper Review
 
@@ -9,14 +8,29 @@ categories:
 ---
 
 # 들어가며,
+- Choy 논문[[학위논문](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]와 [[Minkowski Engine](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)] document 사이트, [[4D Spatio-Temporal ConvNets: Minkowski Convolutional NEural Networks, CVPR 2019](https://arxiv.org/pdf/1904.08755.pdf)]를 참고하였음
 - spatially dense 한 language 또는 image와는 다르게, 3D point cloud 또는 higher-dimensional data(e.g., data statistics)들은 공간상에서 data 분포도가 매우 sparse 함
 - 효율적인 learning을 위해서는 sparse representation을 어떻게 잘 활용하느냔가 관건임
 - 이를 해결하기 위해 spatially sparse data를 활용해서 spatially-sparse convolutional neural network들이 개발되고, 이러한 network들은 spatially sparse tensor를 도입하고, 이에 맞는 sparse tensor를 홀용한 activation 함수들도 제안됨
-- 이러한 network들은 **<u>Sparse Tensor Network</u>**이라 불리며, network에 들어가는 input 을 포함한 모든 것들이 sparse tensor로 구성되어 있음
+- 이러한 network들은 <u>**Sparse Tensor Network**</u>이라 불리며, network에 들어가는 input 을 포함한 모든 것들이 sparse tensor로 구성되어 있음
 ---
 
-<br>
-<br>
+
+# 주요 용어 및 Sparse Conv 배경지식
+- 참고[[MinkowskiEngine Doc](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)]
+## Sparse Convolution
+- 초기에 neural network의 inference 속도를 올리고, memory footprint를 줄이기 위해서 compression 시키는 방법들이 많이 제안되었는데, 대표적으로 [[Sparse Convolutional Neural Networks, CVPR 2015](https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Liu_Sparse_Convolutional_Neural_2015_CVPR_paper.pdf)]가 있음
+  - 여기에서도 Sparse Convolution이란 terminology를 사용하는데, 이는 모델 경량화할 때, weight를 pruning하는 방법임
+  - 이는 parameter-space에서의 sparsity를 고려한 것이며, 실제는 dense tensor를 활용한 연산임
+  - data-space에서의 sparsity를 고려한 방법이 아님
+
+- 여기에서의 Sparse Convolution은 **spatially-sparse data**를 기반으로 함
+- 이러한 data를 다루기 위해 sparse tensor의 개념을 도입
+  - 이 sparse convolution 논문에서 개념 도입: [[3D Semantic Segmentation with
+Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711.10275.pdf)]
+
+
+
 <br>
 
 ---
@@ -55,12 +69,10 @@ categories:
 ![eq2](/assets/images/2021-04-27-sparse-tensor/eq2.png)
 
 <br>
-<br>
 
 ### 2. Tensor Stride
 image stride 개념과 같음
 
-<br>
 <br>
 
 ### 3. Kernel Map
@@ -91,7 +103,9 @@ image stride 개념과 같음
     - e.g., $V^1(3)$={$-1, 0, 1$}
 - 하지만 아래의 sparse convolution 수식 (4.4)은 $i$ 가 $C^{in}$에서 값이 있는 부분들에 대해서만 고려하기에, sparse하게 feature가 update됨
   - $N_D$는 convolution kernel shape을 정의하는 offset들의 set를 의미
-  - 즉, ![sparsetensor_ind](/assets/images/2021-04-27-sparse-tensor/sparsetensor_ind.png) 는 현재의 point **$u$**을 center로 두고서의 kernel offset과 input coordinates $C^{in}$의 교차되는 부분을 의미
+  - $N_D$는 arbirarily 정의될 수 있음
+    - 이는 dialated convolution, typical hypercubic kernel과 같은 special case들이 적용/포함될 수 있음을 의미함
+  - 즉, ![sparsetensor_ind](/assets/images/2021-04-27-sparse-tensor/sparsetensor_ind.png) 는 현재의 point $**u**$을 center로 두고서의 kernel offset과 input coordinates $C^{in}$의 교차되는 부분을 의미
 
 ![fig3](/assets/images/2021-04-27-sparse-tensor/fig3.png)
 
@@ -102,6 +116,8 @@ image stride 개념과 같음
 
 <br>
 <br>
+
+---
 
 # Coordinate Manager
 - Coordinate Manager: generate a new sparse tensor and findes neighbors among coordinates of non-zero elements
@@ -115,3 +131,41 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
 ```
 
 ## Sparse Tensor Generation
+1. Discretization: Unstructured data → Sparse Tensor
+  - 원래 data의 continuous coordiate 를 C={$X_i$}$^N_{i=1}$ 라고 한다면, 이를 discretization 시켜줘야함
+  - 단순하게, quantization factor $s$ 를 통해 원래의 data, $X$를 나눠주고 flooring해주면 됨 (정수형으로 바꿔주기 위해) 
+2. Hash Table: discretized coordinates 를 저장하기 위해
+  - Key: D-dimensional 정수형 coordinate
+    - 즉,, 그냥 grid라고 생각하면 되려나?
+  - Value: 저장된 그 coordinate의 row index가 value가 됨
+    - 이거는,, 그 grid안에, 원래의 unstructured data의 index 정보가 들어가있는 것으로 생각하면 될 듯
+
+
+## Coordinate Key
+- Coordinate Key 는 sparse tensor의 coordinate의 정보를 cach화시킨 unordered map을 위한 Hash Key이다.
+- 만약 두 개의 sparse tensor가 같은 coordinate manager와 coordinate key를 가지고 있다면, 그 두 개의 sparse tensor의 coordinate는 identical하다는 것이며, 그 둘은 같은 memory space를 공유한다.
+
+## Kernel Map
+
+![fig3](/assets/images/2021-04-27-sparse-tensor/fig4.png)
+
+- 위 그림은 일반적인 convolution(dense convolution)과 sparse convolution과의 비교 그림이다
+- Im2col() 에 대한 설명은 다음 링크 참고 [[Im2Col() 참고 링크](https://welcome-to-dewy-world.tistory.com/94)]
+  - dense convolution을 수행하기에 앞서, 다차원의 데이터를 2D 행렬로 변환하여 matrix 연산을 할 수 있도록 도와주는 알고리즘 (내적연산, inner-product)
+  - 시간복잡도 줄이기 위해 사용
+- Sparse Convolution을 위한 Kernel Map은 위의 Im2Col() 함수와 동일한 역할을 수행한다.
+  - 한 점 $u$ 주변의 존재하는 coordinate, $N^D(u)∩C^{in}$ 을 찾기 위해 $N(u)$를 정의하는 과정
+    - 즉 모든 점에 대해 수행해야하기 때문에, 각각의 데이터 $u$마다 $N(u)$를 정의하는 작업 (iterate)
+
+
+<br>
+<br>
+
+---
+# 마무리
+- 더욱 자세한 내용은 아래 링크 참고
+  - [[Minkowski Engine Doc](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)]
+  - [[3D Semantic Segmentation with Submanifold Sparse Convolutional Neural Networks, CVPR’18](https://arxiv.org/pdf/1711.10275.pdf)]
+  - [[4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural Networks, CVPR’19](https://arxiv.org/pdf/1904.08755.pdf)]
+  - [[High-dimensional Convolutional Neural Networks for 3D Perception, Stanford University](https://purl.stanford.edu/fg022dx0979)] [[Chapter 4. Sparse Tensor Networks](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]
+---

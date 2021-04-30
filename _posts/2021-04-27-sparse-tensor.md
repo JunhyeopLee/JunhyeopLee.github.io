@@ -169,4 +169,33 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
   - [[4D Spatio-Temporal ConvNets: Minkowski Convolutional Neural Networks, CVPR’19](https://arxiv.org/pdf/1904.08755.pdf)]
   - [[High-dimensional Convolutional Neural Networks for 3D Perception, Stanford University](https://purl.stanford.edu/fg022dx0979)]
     - [[Chapter 4. Sparse Tensor Networks](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]
-  
+
+---
+
+# 관련 python libray 들
+  - [[SparseConvNet](https://github.com/facebookresearch/SparseConvNet)]
+    - Pytorch 1.3
+    - Cuda 10.0
+    - Python 3.3 with conda
+    - 상위버전의 pytorch 또는 cuda 11 지원하는지는 잘 모르겠음..
+    - 자세한 사항은 위 링크 통해서 확인바람
+  - [[spconv](https://github.com/traveller59/spconv/issues)]
+    - Pytorch 
+    - Cuda 
+    - Python 
+    - GCC 
+    - 자세한 사항은 위 링크 통해서 확인바람
+  - [[MinkowskiEngine](https://github.com/NVIDIA/MinkowskiEngine)]
+    - Pytorch >= 1.7
+    - Cuda >= 10.1.243 (please use the same CUDA version used for pytorch)
+    - Python >=3.6
+    - GCC >= 7.4.0
+    - 자세한 사항은 위 링크 통해서 확인바람
+  - [[TorchSparse](https://github.com/mit-han-lab/torchsparse)]
+    - Pytorch = 1.6.0
+    - CUDA 10.2
+    - CUDNN 7.6.2
+    - 자세한 사항은 위 링크 통해서 확인바람
+      - kernel map 구축할 때, GPU사용가능하도록 했기 때문에, Minkowski engine 보다 속도가 빠르다고 함
+      - 하지만, MinkowskiEngine에 비해 제한된 함수들만 존재하며, 아직 1.1.0 버전이 나왔을 만큼, 아직 개발 초기단계이기에, API document site 같은 것이 없음
+      - 또한, CPU trainig 지원 안 함

@@ -180,7 +180,7 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
     - 상위버전의 pytorch 또는 cuda 11 지원하는지는 잘 모르겠음..
     - 자세한 사항은 위 링크 통해서 확인바람
   - [[spconv](https://github.com/traveller59/spconv/issues)]
-    - Pytorch 
+    - Pytorch (pytorch 1.8.1 + cuda 10.2 가능하지만, 일부 에러 발생 가능)
     - Cuda 
     - Python 
     - GCC 
@@ -192,7 +192,7 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
     - GCC >= 7.4.0
     - 자세한 사항은 위 링크 통해서 확인바람
   - [[TorchSparse](https://github.com/mit-han-lab/torchsparse)]
-    - Pytorch = 1.6.0
+    - Pytorch >= 1.6.0 <= 1.7.1[[ref](https://github.com/mit-han-lab/torchsparse/issues/44)]
     - CUDA 10.2
     - CUDNN 7.6.2
     - 자세한 사항은 위 링크 통해서 확인바람

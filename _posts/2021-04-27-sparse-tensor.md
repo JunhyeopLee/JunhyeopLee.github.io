@@ -7,18 +7,22 @@ categories:
 
 ---
 
-# 들어가며,
+# 들어가며
+
 - Choy 논문[[학위논문](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]와 [[Minkowski Engine](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)] document 사이트, [[4D Spatio-Temporal ConvNets: Minkowski Convolutional NEural Networks, CVPR 2019](https://arxiv.org/pdf/1904.08755.pdf)]를 참고하였음
 - spatially dense 한 language 또는 image와는 다르게, 3D point cloud 또는 higher-dimensional data(e.g., data statistics)들은 공간상에서 data 분포도가 매우 sparse 함
 - 효율적인 learning을 위해서는 sparse representation을 어떻게 잘 활용하느냔가 관건임
 - 이를 해결하기 위해 spatially sparse data를 활용해서 spatially-sparse convolutional neural network들이 개발되고, 이러한 network들은 spatially sparse tensor를 도입하고, 이에 맞는 sparse tensor를 홀용한 activation 함수들도 제안됨
 - 이러한 network들은 <u>Sparse Tensor Network</u>이라 불리며, network에 들어가는 input 을 포함한 모든 것들이 sparse tensor로 구성되어 있음
+
 ---
 
-
 # 주요 용어 및 Sparse Conv 배경지식
+
 - 참고[[MinkowskiEngine Doc](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)]
+
 ## Sparse Convolution
+
 - 초기에 neural network의 inference 속도를 올리고, memory footprint를 줄이기 위해서 compression 시키는 방법들이 많이 제안되었는데, 대표적으로 [[Sparse Convolutional Neural Networks, CVPR 2015](https://www.cv-foundation.org/openaccess/content_cvpr_2015/papers/Liu_Sparse_Convolutional_Neural_2015_CVPR_paper.pdf)]가 있음
   - 여기에서도 Sparse Convolution이란 terminology를 사용하는데, 이는 모델 경량화할 때, weight를 pruning하는 방법임
   - 이는 parameter-space에서의 sparsity를 고려한 것이며, 실제는 dense tensor를 활용한 연산임
@@ -29,12 +33,12 @@ categories:
   - 이 sparse convolution 논문에서 개념 도입: [[3D Semantic Segmentation with
 Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711.10275.pdf)]
 
-
-
 <br>
 
 ---
+
 # Sparse Tensor Networks
+
 - 일반적인 convolutional network(dense tensor) 들하고의 차이점은 sparsity management에 있음
 
 <br>
@@ -46,12 +50,10 @@ Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711
 
 <br>
 
-
 - 위 table 처럼, 무작위로 배치되어 있는 element에 접근하는것은
   - dense tensor의 경우에는 쉽지만,
   - sparse tensor의 경우에는 상대적으로 복잡한 data structure를 담고 있는 무언가가 필요함 (hash-table 또는 KD-tree, 또는 간단하게 KNN)
 - 즉, sparse data를 다룰 때, convolution 연산을 위해 주변점 찾는 것 + 간단하게 max-pooling하는것은 더이상 trivial operation이 아니게 된다는 점
-
 
 <br>
 <br>
@@ -59,24 +61,27 @@ Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711
 ---
 
 ## Terms
+
 ### 1. Sparse Tensor
+
 - 대부분의 element들이 0인 sparse tensor (<- sparse matrix의 확장판이라고 보면 됨)
 - $x^d_i$는 data coordinate이고, 이 값들이 C 안에 들어가 있다면 $f_i$ 값을 갖고 나머지는 0
 
-
 ![eq1](/assets/images/2021-04-27-sparse-tensor/eq1.png)
 
-  - COO format: Coordinate list
+- COO format: Coordinate list
 ![eq2](/assets/images/2021-04-27-sparse-tensor/eq2.png)
 
 <br>
 
 ### 2. Tensor Stride
+
 image stride 개념과 같음
 
 <br>
 
 ### 3. Kernel Map
+
 ![fig2](/assets/images/2021-04-27-sparse-tensor/fig2.png)
 
 - sparse tensor 가 다른 sparse tensor 에 mapping 될 때(convolution 또는 pooling layer지나면서), 어떤 coordinate가 mapping되었는지를 알아야 함
@@ -90,7 +95,9 @@ image stride 개념과 같음
 <br>
 
 ### 4. Sparse Tensor Network Layers
+
 #### 4.1 Generalized Convolution
+
 - conventional convolution은 discrete convolution이며, input과 output 모두 discrete dense tensor 형태를 가지고 있다.
 - 아래는 일반 convolution operation 수식화한 것
 ![eq3](/assets/images/2021-04-27-sparse-tensor/eq3.png)
@@ -111,6 +118,7 @@ image stride 개념과 같음
 ![fig3](/assets/images/2021-04-27-sparse-tensor/fig3.png)
 
 **중요한부분!!!!!**
+
 1. $C^{out}$은 dynamically 생성될 수 있다.(이는 generative task에 대해서는 crucial함)
 2. Output coordinates, $C^{out}$ 은 $C^{in}$과 독립적으로 무작위(arbitrarily)하게 정의될 수 있다.
 3. Convolution kernel의 shape은 무작위로 $N^D$ 형식으로 정의될 수 있다.
@@ -121,28 +129,34 @@ image stride 개념과 같음
 ---
 
 # Coordinate Manager
+
 - Coordinate Manager: generate a new sparse tensor and findes neighbors among coordinates of non-zero elements
 - 일단 새로운 coordinate set를 만들면, coordinate manager는 그 coordinate들과 neighborhood search 결과들을 cache화함
   - coordinate들과 neighborhood search result들은 자주 사용되기에.
 - conv layer들, 또는 residual block들은 여러번 불러서 operation시킬 수 있듯이, 위 저장하는것도 반복해서 함
 - 다만, same coordinate & same kernel map을 사용해서 매번 재계산하는게 아니라, coordinate manager가 그들의 결과들을 cache화하고, 만약 그 cache dictionary 내에서 같은 operation이 감지된다면, 그 때 저장했던걸 불러와서 재사용한다.
 - 아래는 원문
+
 ```
 A coordinate manager generates a new sparse tensor and finds neighbors among coordinates of nonzero elements. Also, once we create a new set of coordinates, the coordinate manager caches the coordinates and the neighborhood search results these are reused very frequently. For example, in many conventional neural networks, we repeat the same operations in series multiple times such as multiple residual blocks in a ResNet or a DenseNet. Thus, instead of recomputing the same coordinates and same kernel maps, a coordinate manager caches all these results and reuses if it detects the same operation that is in the dictionary is called.
 ```
 
 ## Sparse Tensor Generation
-1. Discretization: Unstructured data → Sparse Tensor
-  - 원래 data의 continuous coordiate 를 C={$X_i$}$^N_{i=1}$ 라고 한다면, 이를 discretization 시켜줘야함
-  - 단순하게, quantization factor $s$ 를 통해 원래의 data, $X$를 나눠주고 flooring해주면 됨 (정수형으로 바꿔주기 위해) 
-2. Hash Table: discretized coordinates 를 저장하기 위해
-  - Key: D-dimensional 정수형 coordinate
-    - 즉,, 그냥 grid라고 생각하면 되려나?
-  - Value: 저장된 그 coordinate의 row index가 value가 됨
-    - 이거는,, 그 grid안에, 원래의 unstructured data의 index 정보가 들어가있는 것으로 생각하면 될 듯
 
+1. Discretization: Unstructured data → Sparse Tensor
+
+- 원래 data의 continuous coordiate 를 C={$X_i$}$^N_{i=1}$ 라고 한다면, 이를 discretization 시켜줘야함
+- 단순하게, quantization factor $s$ 를 통해 원래의 data, $X$를 나눠주고 flooring해주면 됨 (정수형으로 바꿔주기 위해)
+
+2. Hash Table: discretized coordinates 를 저장하기 위해
+
+- Key: D-dimensional 정수형 coordinate
+  - 즉,, 그냥 grid라고 생각하면 되려나?
+- Value: 저장된 그 coordinate의 row index가 value가 됨
+  - 이거는,, 그 grid안에, 원래의 unstructured data의 index 정보가 들어가있는 것으로 생각하면 될 듯
 
 ## Coordinate Key
+
 - Coordinate Key 는 sparse tensor의 coordinate의 정보를 cach화시킨 unordered map을 위한 Hash Key이다.
 - 만약 두 개의 sparse tensor가 같은 coordinate manager와 coordinate key를 가지고 있다면, 그 두 개의 sparse tensor의 coordinate는 identical하다는 것이며, 그 둘은 같은 memory space를 공유한다.
 
@@ -158,12 +172,13 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
   - 한 점 $u$ 주변의 존재하는 coordinate, $N^D(u)∩C^{in}$ 을 찾기 위해 $N(u)$를 정의하는 과정
     - 즉 모든 점에 대해 수행해야하기 때문에, 각각의 데이터 $u$마다 $N(u)$를 정의하는 작업 (iterate)
 
-
 <br>
 <br>
 
 ---
+
 # 마무리
+
 - 더욱 자세한 내용은 아래 링크 참고
   - [[Minkowski Engine Doc](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)]
   - [[3D Semantic Segmentation with Submanifold Sparse Convolutional Neural Networks, CVPR’18](https://arxiv.org/pdf/1711.10275.pdf)]
@@ -174,29 +189,30 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
 ---
 
 # 관련 python libray 들
-  - [[SparseConvNet](https://github.com/facebookresearch/SparseConvNet)]
-    - Pytorch 1.3
-    - Cuda 10.0
-    - Python 3.3 with conda
-    - 상위버전의 pytorch 또는 cuda 11 지원하는지는 잘 모르겠음..
-    - 자세한 사항은 위 링크 통해서 확인바람
-  - [[spconv](https://github.com/traveller59/spconv/issues)]
-    - Pytorch (pytorch 1.8.1 + cuda 10.2 가능하지만, 일부 에러 발생 가능)
-    - Cuda 
-    - Python 
-    - GCC 
-    - 자세한 사항은 위 링크 통해서 확인바람
-  - [[MinkowskiEngine](https://github.com/NVIDIA/MinkowskiEngine)]
-    - Pytorch >= 1.7
-    - Cuda >= 10.1.243 (please use the same CUDA version used for pytorch)
-    - Python >=3.6
-    - GCC >= 7.4.0
-    - 자세한 사항은 위 링크 통해서 확인바람
-  - [[TorchSparse](https://github.com/mit-han-lab/torchsparse)]
-    - Pytorch >= 1.6.0 <= 1.7.1[[ref](https://github.com/mit-han-lab/torchsparse/issues/44)]
-    - CUDA 10.2
-    - CUDNN 7.6.2
-    - 자세한 사항은 위 링크 통해서 확인바람
-      - kernel map 구축할 때, GPU사용가능하도록 했기 때문에, Minkowski engine 보다 속도가 빠르다고 함
-      - 하지만, MinkowskiEngine에 비해 제한된 함수들만 존재하며, 아직 1.1.0 버전이 나왔을 만큼, 아직 개발 초기단계이기에, API document site 같은 것이 없음
-      - 또한, CPU trainig 지원 안 함
+
+- [[SparseConvNet](https://github.com/facebookresearch/SparseConvNet)]
+  - Pytorch 1.3
+  - Cuda 10.0
+  - Python 3.3 with conda
+  - 상위버전의 pytorch 또는 cuda 11 지원하는지는 잘 모르겠음..
+  - 자세한 사항은 위 링크 통해서 확인바람
+- [[spconv](https://github.com/traveller59/spconv/issues)]
+  - Pytorch (pytorch 1.8.1 + cuda 10.2 가능하지만, 일부 에러 발생 가능)
+  - Cuda
+  - Python
+  - GCC
+  - 자세한 사항은 위 링크 통해서 확인바람
+- [[MinkowskiEngine](https://github.com/NVIDIA/MinkowskiEngine)]
+  - Pytorch >= 1.7
+  - Cuda >= 10.1.243 (please use the same CUDA version used for pytorch)
+  - Python >=3.6
+  - GCC >= 7.4.0
+  - 자세한 사항은 위 링크 통해서 확인바람
+- [[TorchSparse](https://github.com/mit-han-lab/torchsparse)]
+  - Pytorch >= 1.6.0 <= 1.7.1[[ref](https://github.com/mit-han-lab/torchsparse/issues/44)]
+  - CUDA 10.2
+  - CUDNN 7.6.2
+  - 자세한 사항은 위 링크 통해서 확인바람
+    - kernel map 구축할 때, GPU사용가능하도록 했기 때문에, Minkowski engine 보다 속도가 빠르다고 함
+    - 하지만, MinkowskiEngine에 비해 제한된 함수들만 존재하며, 아직 1.1.0 버전이 나왔을 만큼, 아직 개발 초기단계이기에, API document site 같은 것이 없음
+    - 또한, CPU trainig 지원 안 함

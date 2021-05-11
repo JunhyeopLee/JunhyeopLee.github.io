@@ -1,5 +1,5 @@
 ---
-title: "Paper Review 3: [Arxiv 2021] 4DINO: Emerging Properties in Self-Supervised Vision Transformers
+title: "Paper Review 4: [Arxiv 2021] DINO: Emerging Properties in Self-Supervised Vision Transformers
 "
 categories:
   - Paper Review

@@ -12,7 +12,7 @@ categories:
 - spatially dense 한 language 또는 image와는 다르게, 3D point cloud 또는 higher-dimensional data(e.g., data statistics)들은 공간상에서 data 분포도가 매우 sparse 함
 - 효율적인 learning을 위해서는 sparse representation을 어떻게 잘 활용하느냔가 관건임
 - 이를 해결하기 위해 spatially sparse data를 활용해서 spatially-sparse convolutional neural network들이 개발되고, 이러한 network들은 spatially sparse tensor를 도입하고, 이에 맞는 sparse tensor를 홀용한 activation 함수들도 제안됨
-- 이러한 network들은 <u>**Sparse Tensor Network**</u>이라 불리며, network에 들어가는 input 을 포함한 모든 것들이 sparse tensor로 구성되어 있음
+- 이러한 network들은 <u>Sparse Tensor Network</u>이라 불리며, network에 들어가는 input 을 포함한 모든 것들이 sparse tensor로 구성되어 있음
 ---
 
 
@@ -62,6 +62,7 @@ Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711
 ### 1. Sparse Tensor
 - 대부분의 element들이 0인 sparse tensor (<- sparse matrix의 확장판이라고 보면 됨)
 - $x^d_i$는 data coordinate이고, 이 값들이 C 안에 들어가 있다면 $f_i$ 값을 갖고 나머지는 0
+
 
 ![eq1](/assets/images/2021-04-27-sparse-tensor/eq1.png)
 

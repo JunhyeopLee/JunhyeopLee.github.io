@@ -24,9 +24,9 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 이런 이슈들로 인하여,
 
 1. sparse transformer라는 것들이 발표되기 시작했으며, $O(n^2)$ 를 $O(n log(n))$ 과 같이 complexity를 줄이기 위한 노력들이 이뤄지기 시작했다.
-2. 또한, Deit와 같은 논문처럼 대용량의 데이터셋 없이도 할 수 있는 방법론 또한 제기되기 시작했다.
+2. 또한, DeiT와 같은 논문처럼 대용량의 데이터셋 없이도 할 수 있는 방법론 또한 제기되기 시작했다.
 
-하지만 그 누구도 NLP에서의 BERT, GPT와 같은 논문들처럼 NLP에서의 transformer는 pretraining이 요구되며, 이런 pretraining을 통해 여러 downstream task에서 많은 성공을 이뤄냈다는 점에 집중하지 못했었다. 
+하지만 그 누구도 NLP에서의 BERT, GPT와 같은 논문들처럼 NLP에서의 transformer는 pretraining이 요구되며, 이런 pretraining을 통해 여러 downstream task에서 많은 성공을 이뤄냈다는 점에 집중하지 못했었다.
 
 하지만 이번 포스트를 통해 소개하는 논문은 이러한 점에 집중했고, Unsupervised learning 방법으로 transformer를 적용, pretraining하는 방법론은 제기하였으며, 기존의 다른 vision transformer 계열들보다 supervised approache와의 gap을 상당히 줄였음을 보여준다.
 
@@ -54,3 +54,20 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 - ViT 에서 사용되는 image patch 사이즈는 작을 수록 feature의 결과물(품질)을 향상시킬 수 있었다.
 
+## DINO Framework
+
+- teacher 와 student network로 이루어진 구조이며, 각각 encoder-decoder 구조로 이루어져 있음
+  - student는 teacher 의 output을 cross-entropy를 활용하여 예측하려하고,
+  - Teacher의 output을 Centering하고 sharpening 하는 것만으로도 collapse를 피할 수 있다고 함
+    - 물론 predictor, advanced normalization, contrastive loss 도 도움을 주지만, 그 효과는 미미
+  - 또한, internal normalizations 도 필요 없이, model architecture 의 수정도 필요 없이, ViT 또는 Convolution Network에 모두 적용가능하기에 flexible하다고 할 수 있다
+
+- 기존 knowledge distillation과의 차이점
+  - 기존 knowledge distillation은 teacher는 이미 powerful 한 상태로 freeze 시키고나서, teacher 의 결과를 student에게 넘겨주는 방식
+  - 여기에서는 teacher 도 학습 중에 계속 파라미터가 바뀌게 된다.
+  - 매 epoch마다 한 번, parameter update를 시켜주는데, "Exponential moving average"를 활용해서, student의 parameter가 일부 전파되는 식으로 update를 시켜준다.
+  - 즉, online-distillation (codistillation) 방식을 채택하여 진행한다.
+
+- Network 구조는 다음과 같다.
+
+![fig2](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/fig2.png)

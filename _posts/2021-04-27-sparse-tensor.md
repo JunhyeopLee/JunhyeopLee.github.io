@@ -162,7 +162,11 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
 
 ## Kernel Map
 
+<<<<<<< HEAD
 ![fig4](/assets/images/2021-04-27-sparse-tensor/fig4.png)
+=======
+![fig3](/assets/images/2021-04-27-sparse-tensor/fig4.png)
+>>>>>>> fd2be910a9d3e349ad5f3f99f0a8c9e9b3b77917
 
 - 위 그림은 일반적인 convolution(dense convolution)과 sparse convolution과의 비교 그림이다
 - Im2col() 에 대한 설명은 다음 링크 참고 [[Im2Col() 참고 링크](https://welcome-to-dewy-world.tistory.com/94)]

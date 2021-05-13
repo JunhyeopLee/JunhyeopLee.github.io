@@ -54,7 +54,7 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 - ViT 에서 사용되는 image patch 사이즈는 작을 수록 feature의 결과물(품질)을 향상시킬 수 있었다.
 
-## DINO Framework
+## DINO
 
 - teacher 와 student network로 이루어진 구조이며, 각각 encoder-decoder 구조로 이루어져 있음
   - student는 teacher 의 output을 cross-entropy를 활용하여 예측하려하고,
@@ -71,3 +71,58 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 - Network 구조는 다음과 같다.
 
 ![fig2](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/fig2.png)
+
+### SSL with Knowledge Distillation
+
+- Knowledge Distillation(KD)을 활용한 알고리즘은 다음 그림 algorithm 에 설명되어 있다.
+
+![algorithm](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/algo1.png)
+
+- 우선 Knowledge Distillation은 student network, $g_{\theta_s}$를 teacher network, $g_{\theta_t}$ 를 통해서 학습시키는 방법론이며, student network의 output의 확률분포는 다음과 같이 표현될 수 있다.
+
+![eq1](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/eq1.png)
+
+- $\tau_*$는 temperature 파라미터이며, sharpeness를 조절하는 역할을 한다.
+
+- 일반적으로 KD 에서는 student의 확률분포가 teacher 의 확률분포를 따르도록, 즉, cross-entropy 를 통해서 학습시키지만(식(2)),
+
+![eq2](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/eq2.png)
+
+- 여기에서는 self-supervised 방법이기에, 식(2)를 다음과 같이 변형을 한다.
+
+![eq3](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/eq3.png)
+
+- input $x$가 있을 때, 여러 개의 view 를 생성한다.
+- augmentation을 통해 변형시킨 view들을 사용하는데, 여기에서는 2 개의 global views, $x^g_1$, $x^g_2$, 를 만들고, 여러 개의 local views를 생성한다. (Multi-crop 활용)
+  * Global Views: 224-by-224 크기의 영상 -> 원래의 original 영상에서 50% 이상 크기
+  * Local Views: 96-by-96 크기의 영상 -> 원래의 original 영상에서 50% 이하 크기
+- 모든 crop된 view 들은 student network에 들어가고, 오직 global view들만 teacher network로 들어가서 각각의 output들을 비교하며 $\theta_s$를 학습시키게 된다.
+- 서로 다른 view들의 비교를 통해, **Local-to-Global** correspondence 를 확습시킬 수 있다.
+
+#### **Teacher Network**
+- 일반적인 Knowledge distillation과 다른 점은 앞서 언급했듯이, 강력한 성능의 teacher network가 존재하지 않고, online-distillation(codistillation)으로 student network와 같이 학습되는 teacher network가 존재한다.
+- 하지만, 실제 $\theta_t$가 backprop 통해서 학습되는 것이 아닌, 아래의 수식처럼, exponential moving average(EMA) 방식을 통해 teacher network의 파라미터가 업데이트된다.
+
+![EMA](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/EMA.png)
+
+- 여기에서 $\lambda$ 는 학습동안 cosine schedule을 따르며, 0.998에서 1까지 변화한다.
+
+#### **Network Architecture**
+- ViT에 DINO를 적용한 것이고, student 와 teacher 의 구조가 같은 형태이기 때문에, predictor 사용 안함
+- ViT ($f$) 끝에, projection head (MLP구조, $h$)를 추가해서 projection head 결과($g=h◦f$)를 학습에 활용하고, downstream task에서는 $f$의 결과를 활용함
+- 또한, ViT에서는 batch normalization 이 없기에, 여기에서도 BN-free 구조를 가지고 있음(even projection head에도 BN 없음)
+
+#### **Avoiding Collapse**
+- model collapse를 방지하기 위해서, 다른 self-supervised 논문들은 contrastive loss, clustering constraints, predictor, 또는 batch normalization을 적용한다.
+- 여기에서는 오로지 teacher output에 centering, sharpening을 적용함으로써, model collapse를 방지한다.
+- centering은 아래의 식에서처럼, bias term인 c 를 output에 더해줌으로써 행해진다. 
+
+![centering](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/centering.png)
+
+- c 는 EMA할 때, update되며, batch size에 따라 조절된다. update 식은 다음과 같다.
+
+![eq4](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/eq4.png)
+
+- m은 rate parameter이며($m>0$), B는 batch size를 뜻한다.
+
+- Sharpening은 teacher softmax normalization에서의 $\tau_t$를 통해 얻어질 수 있다.

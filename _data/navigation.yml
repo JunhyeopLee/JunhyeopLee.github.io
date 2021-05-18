@@ -7,7 +7,7 @@ main:
   - title: "Posts"
     url: /year-archive/
     # url: /_posts/
-  - title: "About"
-    url: "/cv/"
+  # - title: "About"
+  #   url: "/cv/"
   # - title: "Publications"
   #   url: "/publications/"

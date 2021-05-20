@@ -296,7 +296,7 @@ defaults:
       layout: single # single, archive index, search, splash, paginated
       show_date: true
       author_profile: true
-      read_time: true
+      read_time: false
       comments: # true
       share: false # true, false
       related: true # true, false

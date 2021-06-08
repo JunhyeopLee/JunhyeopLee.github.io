@@ -7,6 +7,7 @@ tags:
   - Arxiv
   - Self-supervised
   - Transformer
+use_math: true
 ---
 
 

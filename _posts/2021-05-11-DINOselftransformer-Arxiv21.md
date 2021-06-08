@@ -18,12 +18,12 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 하지만, 이러한 노력에도 불구하고, 아직까지는 vision 분야에서 괄목한만한 성능을 보이는 방법들은 없으며, 오히려 다음과 같은 이슈들만 부각되기 시작했다.
 
-- 많은 양의 메모리 사용량 필요 (multi-head self-attention 에서 attention map 생성할 때, $O(n^2)$ 필요 )
+- 많은 양의 메모리 사용량 필요 (multi-head self-attention 에서 attention map 생성할 때, $$O(n^2)$$ 필요 )
 - 구글에서 나온 JTL과 같은 대용량의(imagenet보다 훨씬 더 많은) 데이터셋을 활용힌 학습 요구
 
 이런 이슈들로 인하여,
 
-1. sparse transformer라는 것들이 발표되기 시작했으며, $O(n^2)$ 를 $O(n log(n))$ 과 같이 complexity를 줄이기 위한 노력들이 이뤄지기 시작했다.
+1. sparse transformer라는 것들이 발표되기 시작했으며, $$O(n^2)$$ 를 $$O(n log(n))$$ 과 같이 complexity를 줄이기 위한 노력들이 이뤄지기 시작했다.
 2. 또한, DeiT와 같은 논문처럼 대용량의 데이터셋 없이도 할 수 있는 방법론 또한 제기되기 시작했다.
 
 하지만 그 누구도 NLP에서의 BERT, GPT와 같은 논문들처럼 NLP에서의 transformer는 pretraining이 요구되며, 이런 pretraining을 통해 여러 downstream task에서 많은 성공을 이뤄냈다는 점에 집중하지 못했었다.
@@ -74,11 +74,11 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 ![algorithm](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/algo1.png)
 
-- 우선 Knowledge Distillation은 student network, $g_{\theta_s}$를 teacher network, $g_{\theta_t}$ 를 통해서 학습시키는 방법론이며, student network의 output의 확률분포는 다음과 같이 표현될 수 있다.
+- 우선 Knowledge Distillation은 student network, $$g_{\theta_s}$$를 teacher network, $$g_{\theta_t}$$ 를 통해서 학습시키는 방법론이며, student network의 output의 확률분포는 다음과 같이 표현될 수 있다.
 
 ![eq1](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/eq1.png)
 
-- $\tau_*$는 temperature 파라미터이며, sharpeness를 조절하는 역할을 한다.
+- $$\tau_*$$는 temperature 파라미터이며, sharpeness를 조절하는 역할을 한다.
 
 - 일반적으로 KD 에서는 student의 확률분포가 teacher 의 확률분포를 따르도록, 즉, cross-entropy 를 통해서 학습시키지만(식(2)),
 

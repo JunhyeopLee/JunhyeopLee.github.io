@@ -2,9 +2,8 @@
 title: "Install Minkoski Engine"
 categories:
   - Utility
-
----
-
+tags:
+  - Utility
 ---
 
 
@@ -12,33 +11,33 @@ https://github.com/NVIDIA/MinkowskiEngine#anaconda
 
 위 링크를 참고하길 바라며...
 
-<br>
-<br>
+</n>
 
 여기에서는 Minkowski 0.5.1 + pytorch 1.7.1 설치방법 정리해본다
 
-<br>
-<br>
+</n>
 
 # Install Minkowski Engine
 
 정식 document 사이트에서 말하길,
+
 - Python >= 3.6
 - CUDA 10.2 => 오직 Pytorch 1.8.1
 - CUDA 11.1 => Pytorch 1.7.1
 
 NVIDIA 3090 GPU를 사용한다면,
+
 - CUDA 11.2를 설치하고, nvidia-graphic driver 또한 460.xx 버전으로 맞추고 시작하길 추천함
 - CUDA 11.2를 설치한 뒤, Pytorch 1.7.1을 cuda11.0버전으로 설치
 
 ---
 * CUDA 11.2 설치 방법
 
-https://developer.nvidia.com/cuda-11.2.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal
+<https://developer.nvidia.com/cuda-11.2.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal>
 
 또는
 
-https://developer.nvidia.com/cuda-toolkit-archive
+<https://developer.nvidia.com/cuda-toolkit-archive>
 
 에서 원하는 cuda 버전 찾아서 설치하면 됨
 
@@ -51,7 +50,8 @@ https://github.com/NVIDIA/MinkowskiEngine/issues/282
 ---
 
 1. conda 가상환경
-```
+
+```bash
 # 가상환경 
 conda create -n mk051 python=3.8
 conda activate mk051
@@ -65,17 +65,18 @@ conda install openblas-devel -c anaconda
 # Minkowski Engine 설치
 pip install -U git+https://github.com/NVIDIA/MinkowskiEngine -v --no-deps --install-option="--blas_include_dirs=${CONDA_PREFIX}/include" --install-option="--blas=openblas"
 ```
+
 ### 주의해야할 점
+
 - openblas를 먼저 설치하고 pytorch를 설치하면, pytorch 설치 안됨(openblas 버전 때문에)
+
 ---
 
-
-<br>
-<br>
+</n>
 
 # 설치확인
-```
-python
+
+```python
 # pytorch 확인
 import torch
 torch.__version__
@@ -90,7 +91,7 @@ import MinkowskiEngine as ME
 ME.print_diagnostics()
 ```
 
-```
+```print
 ==========System==========
 Linux-5.4.0-74-generic-x86_64-with-glibc2.10
 DISTRIB_ID=Ubuntu
@@ -130,25 +131,30 @@ CUDART version MinkowskiEngine is compiled: 11020
 ```
 
 # Minkowski Engine 을 활용한 사례들
-- https://github.com/NVIDIA/MinkowskiEngine/wiki/Usage
+
+- <https://github.com/NVIDIA/MinkowskiEngine/wiki/Usage>
 
 # facebook Hydra 설치
-```
+
+```bash
 pip install open3d
 pip install hydra-core --upgrade
 pip install -U hydra_colorlog
 pip install hydra-submitit-launcher --upgrade
 ```
+
 ---
 
 # Migration Guide from v0.4x to 0.5x
+
 - 기존 0.4x 버전보다 0.5x버전이 속도가 빠르다고 함
-  - https://github.com/NVIDIA/MinkowskiEngine/issues/204
+  - <https://github.com/NVIDIA/MinkowskiEngine/issues/204>
 - 따라서, pointcontrast 또는 기타 다른 Minkowski Engine을 사용하는 코드들(v0.4x 사용)에서 v0.5로 설치하고 싶다면,
 - 아래의 링크를 통해, 0.4에서 사용되는 코드를 수정해주면 됨
-- https://github.com/NVIDIA/MinkowskiEngine/wiki/Migration-Guide-from-v0.4.x-to-0.5.x
-- https://github.com/facebookresearch/PointContrast/issues/17
-- https://github.com/NVIDIA/MinkowskiEngine/issues/292
+- <https://github.com/NVIDIA/MinkowskiEngine/wiki/Migration-Guide-from-v0.4.x-to-0.5.x>
+- <https://github.com/facebookresearch/PointContrast/issues/17>
+- <https://github.com/NVIDIA/MinkowskiEngine/issues/292>
 
 다른 0.5 버전 관련 issue 들 from github
-- https://github.com/NVIDIA/MinkowskiEngine/issues/250
+
+- <https://github.com/NVIDIA/MinkowskiEngine/issues/250>

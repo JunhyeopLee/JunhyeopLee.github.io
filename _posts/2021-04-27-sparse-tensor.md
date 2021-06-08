@@ -2,11 +2,13 @@
 title: "Sparse Tensor Networks at Minkoski Engine"
 categories:
   - Paper Review
-
+tag:
+  - Convolution
+  - Sparse Convolution
 ---
 
----
 
+---
 # 들어가며
 
 - Choy 논문[[학위논문](https://node1.chrischoy.org/data/publications/thesis/ch4_sparse_tensor_network.pdf)]와 [[Minkowski Engine](https://nvidia.github.io/MinkowskiEngine/sparse_tensor_network.html)] document 사이트, [[4D Spatio-Temporal ConvNets: Minkowski Convolutional NEural Networks, CVPR 2019](https://arxiv.org/pdf/1904.08755.pdf)]를 참고하였음
@@ -33,30 +35,30 @@ categories:
   - 이 sparse convolution 논문에서 개념 도입: [[3D Semantic Segmentation with
 Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711.10275.pdf)]
 
-<br>
+</n>
+</n>
 
 ---
-
 # Sparse Tensor Networks
 
 - 일반적인 convolutional network(dense tensor) 들하고의 차이점은 sparsity management에 있음
 
-<br>
+</n>
 
 | 구분 | Conventional network | Sparse Tensor Network |
 |---|:---:|---:|
 | `Tensor` | Dense tensor | Sparse tensor |
 | `Random Access` | Easy(e.g., pixel grid) | Difficult(e.g., require hash-table or KD-tree) |
 
-<br>
+</n>
 
 - 위 table 처럼, 무작위로 배치되어 있는 element에 접근하는것은
   - dense tensor의 경우에는 쉽지만,
   - sparse tensor의 경우에는 상대적으로 복잡한 data structure를 담고 있는 무언가가 필요함 (hash-table 또는 KD-tree, 또는 간단하게 KNN)
 - 즉, sparse data를 다룰 때, convolution 연산을 위해 주변점 찾는 것 + 간단하게 max-pooling하는것은 더이상 trivial operation이 아니게 된다는 점
 
-<br>
-<br>
+</n>
+</n>
 
 ---
 
@@ -72,13 +74,13 @@ Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711
 - COO format: Coordinate list
 ![eq2](/assets/images/2021-04-27-sparse-tensor/eq2.png)
 
-<br>
+</n>
 
 ### 2. Tensor Stride
 
 image stride 개념과 같음
 
-<br>
+</n>
 
 ### 3. Kernel Map
 
@@ -91,8 +93,8 @@ image stride 개념과 같음
 - coordinate mapping, ($I → O$): $I$에서의 integer index를 활용해서, 어떤 위치에 있는 coordinate가 다음 tensor $O$의 integer index에 mapping되는지 list-up
 - mapping list를 통해 $F_I$ 가 $F_O$에 mapping 됨
 
-<br>
-<br>
+</n>
+</n>
 
 ### 4. Sparse Tensor Network Layers
 
@@ -123,8 +125,7 @@ image stride 개념과 같음
 2. Output coordinates, $C^{out}$ 은 $C^{in}$과 독립적으로 무작위(arbitrarily)하게 정의될 수 있다.
 3. Convolution kernel의 shape은 무작위로 $N^D$ 형식으로 정의될 수 있다.
 
-<br>
-<br>
+</n>
 
 ---
 
@@ -137,7 +138,7 @@ image stride 개념과 같음
 - 다만, same coordinate & same kernel map을 사용해서 매번 재계산하는게 아니라, coordinate manager가 그들의 결과들을 cache화하고, 만약 그 cache dictionary 내에서 같은 operation이 감지된다면, 그 때 저장했던걸 불러와서 재사용한다.
 - 아래는 원문
 
-```
+```text
 A coordinate manager generates a new sparse tensor and finds neighbors among coordinates of nonzero elements. Also, once we create a new set of coordinates, the coordinate manager caches the coordinates and the neighborhood search results these are reused very frequently. For example, in many conventional neural networks, we repeat the same operations in series multiple times such as multiple residual blocks in a ResNet or a DenseNet. Thus, instead of recomputing the same coordinates and same kernel maps, a coordinate manager caches all these results and reuses if it detects the same operation that is in the dictionary is called.
 ```
 
@@ -162,11 +163,7 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
 
 ## Kernel Map
 
-<<<<<<< HEAD
 ![fig4](/assets/images/2021-04-27-sparse-tensor/fig4.png)
-=======
-![fig3](/assets/images/2021-04-27-sparse-tensor/fig4.png)
->>>>>>> fd2be910a9d3e349ad5f3f99f0a8c9e9b3b77917
 
 - 위 그림은 일반적인 convolution(dense convolution)과 sparse convolution과의 비교 그림이다
 - Im2col() 에 대한 설명은 다음 링크 참고 [[Im2Col() 참고 링크](https://welcome-to-dewy-world.tistory.com/94)]
@@ -176,8 +173,8 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
   - 한 점 $u$ 주변의 존재하는 coordinate, $N^D(u)∩C^{in}$ 을 찾기 위해 $N(u)$를 정의하는 과정
     - 즉 모든 점에 대해 수행해야하기 때문에, 각각의 데이터 $u$마다 $N(u)$를 정의하는 작업 (iterate)
 
-<br>
-<br>
+</n>
+</n>
 
 ---
 

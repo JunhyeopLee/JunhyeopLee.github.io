@@ -7,8 +7,8 @@ tags:
   - Arxiv
   - Self-supervised
   - Transformer
-  
 ---
+
 
 ---
 
@@ -30,8 +30,7 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 하지만 이번 포스트를 통해 소개하는 논문은 이러한 점에 집중했고, Unsupervised learning 방법으로 transformer를 적용, pretraining하는 방법론은 제기하였으며, 기존의 다른 vision transformer 계열들보다 supervised approache와의 gap을 상당히 줄였음을 보여준다.
 
-<br>
-<br>
+</n>
 
 # Introduction
 
@@ -39,9 +38,7 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 이런 self-supervised/unsupervised 방법론들에 영감을 받아, ViT feature들이 self-supervised pretraining에 미치는 영향에 대해 의문점이 들기 시작하였고, 이와 관련된 실험들을 통해 다음과 같이 흥미로운 사실들을 발견하였다.
 
-```
-아래의 발견들은 supervised ViT에서도 발견되지 않았고, 다른 convnet 에서도 발견되지 않은 특징들이다.
-```
+**아래의 발견들은 supervised ViT에서도 발견되지 않았고, 다른 convnet 에서도 발견되지 않은 특징들이다.**
 
 - Self-supervised ViT features 는 scene layout, 특히, object 경계면에 대한 정보들을 명시적으로 담고 있음을 확인하였고, 이러한 정보는 마지막 block의 self-attention module에서 확인할 수 있었다.
   - segmentation mask 정보를 얻는다는 것은 대부분의 self-supervised 방법론들에서 보여주는 현상이지만,
@@ -94,12 +91,13 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 - input $x$가 있을 때, 여러 개의 view 를 생성한다.
 - augmentation을 통해 변형시킨 view들을 사용하는데, 여기에서는 2 개의 global views, $x^g_1$, $x^g_2$, 를 만들고, 여러 개의 local views를 생성한다. (Multi-crop 활용)
-  * Global Views: 224-by-224 크기의 영상 -> 원래의 original 영상에서 50% 이상 크기
-  * Local Views: 96-by-96 크기의 영상 -> 원래의 original 영상에서 50% 이하 크기
+  - Global Views: 224-by-224 크기의 영상 -> 원래의 original 영상에서 50% 이상 크기
+  - Local Views: 96-by-96 크기의 영상 -> 원래의 original 영상에서 50% 이하 크기
 - 모든 crop된 view 들은 student network에 들어가고, 오직 global view들만 teacher network로 들어가서 각각의 output들을 비교하며 $\theta_s$를 학습시키게 된다.
 - 서로 다른 view들의 비교를 통해, **Local-to-Global** correspondence 를 확습시킬 수 있다.
 
 #### **Teacher Network**
+
 - 일반적인 Knowledge distillation과 다른 점은 앞서 언급했듯이, 강력한 성능의 teacher network가 존재하지 않고, online-distillation(codistillation)으로 student network와 같이 학습되는 teacher network가 존재한다.
 - 하지만, 실제 $\theta_t$가 backprop 통해서 학습되는 것이 아닌, 아래의 수식처럼, exponential moving average(EMA) 방식을 통해 teacher network의 파라미터가 업데이트된다.
 
@@ -108,14 +106,16 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 - 여기에서 $\lambda$ 는 학습동안 cosine schedule을 따르며, 0.998에서 1까지 변화한다.
 
 #### **Network Architecture**
+
 - ViT에 DINO를 적용한 것이고, student 와 teacher 의 구조가 같은 형태이기 때문에, predictor 사용 안함
 - ViT ($f$) 끝에, projection head (MLP구조, $h$)를 추가해서 projection head 결과($g=h◦f$)를 학습에 활용하고, downstream task에서는 $f$의 결과를 활용함
 - 또한, ViT에서는 batch normalization 이 없기에, 여기에서도 BN-free 구조를 가지고 있음(even projection head에도 BN 없음)
 
 #### **Avoiding Collapse**
+
 - model collapse를 방지하기 위해서, 다른 self-supervised 논문들은 contrastive loss, clustering constraints, predictor, 또는 batch normalization을 적용한다.
 - 여기에서는 오로지 teacher output에 centering, sharpening을 적용함으로써, model collapse를 방지한다.
-- centering은 아래의 식에서처럼, bias term인 c 를 output에 더해줌으로써 행해진다. 
+- centering은 아래의 식에서처럼, bias term인 c 를 output에 더해줌으로써 행해진다.
 
 ![centering](/assets/images/2021-05-11-DINOselftransformer-Arxiv21/centering.png)
 

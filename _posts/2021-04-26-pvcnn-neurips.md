@@ -9,6 +9,7 @@ tags:
 ---
 
 # 들어가며,
+
 - 최근 scene-level semantic segmantation task 에서 sparse convolution / sparse tensor 가 대세인거 같음
 - 예를 들어 semanticKITTI benchmark 만 보더라도, 상위권에 위치해있는 방법들은 대부분 sparse convolution을 선택해서 사용하고 있음
 [[SemanticKITTI Benchmark](http://www.semantic-kitti.org/tasks.html#semseg)]
@@ -18,25 +19,27 @@ tags:
 
 ---
 
-<br>
-<br>
-<br>
+</n>
+</n>
 
 ---
 # Abstract
+
 - 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안한 논문
 - 이전의 work 들은 voxel- 또는 point-based 논문들이 주를 이루었지만, 두 방법 보두 computationally inefficient함
 
-<br>
+</n>
 
-  ### 1. Voxel-based
+### 1. Voxel-based
+
   - 그도 그럴것이, voxel-based는 high-resolution data가 input일 때만 효과적임. 이유는 low-resolution이라면 point들이 뭉쳐져서 semantically 다른 point들임에도 불구하고, 한 voxel에 들어가버리는 case도 있고, (information loss)
   - resolution이 증가하면 할수록, computation cost 와 memory footprints 가 cubically 증가하기에, resolution을 높이는것이 거의 불가능함 (memory issue)
   
 <br>
 
-  ### 2. Point-based
-  - input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 ***sparse data 구축 (실제로는 poor memory locality를 갖는 -> 단점)*** 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)
+### 2. Point-based
+
+- input들어와서 feature 추출하는기까지 걸리는 시간의 약 80%가 ***sparse data 구축 (실제로는 poor memory locality를 갖는 -> 단점)*** 하는데 사용됨 (저렇게 구축하고 나서 feature 추출함)
 - 이를 해소하기위해, 3D point cloud 를 위해 빠르고 효과적인 model인 Point-voxel CNN (PVCNN) 제안함 **(memory & computation efficiency)**
   - point를 활용하면서 memory consumption을 줄이고, 
   - voxel에서의 convolution을 수행하면서, irregular & sparse data access를 줄이고, locality를 좋게 만듦 
@@ -44,27 +47,28 @@ tags:
   - voxel-based 방법들보다 **10**X GPU memory reduction을 보이면서 높은 정확도를 보임
   - point-based 방법들보다 평균 **7**X speedup을 보임      
 
----
-
-<br>
-<br>
+</n>
+</n>
 
 ---
 
 # Motivation
+
 1. Voxel-based models: Large Memory Footprint
+
 ![fig2a](/assets/images/2021-04-26-pvcnn-neurips/fig2a.png)
 - 일반적으로 voxel-based representation은 regular하고, 좋은 memory locality를 갖음
 - 하지만, information loss를 줄이기위해 high-resolution을 가져야 함
 - 위 그림을 보면, point들이 뭉개지지 않고, 잘 구별가능할 정도가 되려면 resolution이 커져야 하며, GPU resource가 cubically 증가하게 되기에, **voxel-based solution is not scalable!**
 
 2. Point-based models: Irregular Memory Access and Dynamic Kernel Overhead
+
 - 일반적으로 point-based 3D modeling 방법들은 memory efficient함 (e.g., PointNet)
 - 하지만 local context modeling 능력이 떨어지기에, 후에 나온 논문들은 point domain에서의 주변 정보들을 통합/활용해서 PointNet의 표현력을 향상시킴!
 - 이런 노력에도 불구하고, 이는 irregular memory access pattern을 야기하며, dynamic kernal computation overhead가 붙게 됨 -> 또한 이는 효율성측면에서 bottleneck이 됨\
 ![fig2b](/assets/images/2021-04-26-pvcnn-neurips/fig2b.png)
 
-<br>
+</n>
 
 - 다시 recap해보면,
   - **Irregular memory access**
@@ -73,9 +77,8 @@ tags:
       - coordinate상 또는 feature space 상에서 NN을 하는 것은 expensive computation을 요구함
       - 또한, 주변점들을 모을 때, large abount of random memory access가 필요함 -> not cache friendly.
     - 위 그림을 보면, PointCNN 또는 DGCNN만 보더라도, 전체 프로세스(Irregular Access -> Dynamic Kernel -> Actual Computation for feature extraction)에서 **Irregular Access** 가 차지하는 비중이 대부분을 차지함
-<br>
-<br>
-    
+</n>
+</n>
   - **Dynamic Kernel Computation**
     - 일반적인 2D와는 달리, point cloud에서의 point들은 irregular하게 산재해 있기 때문에, $x_k$ 의 주변점 $x_i$ 들이 each center $x_k$ 마다 달라짐. 
     - 즉, kernel K($x_k$, $x_i$) 가 매 포인트 $x_k$ 마다 계속 calculate 하는 작업 필요
@@ -85,17 +88,18 @@ tags:
 
 ---
 
-<br>
-<br>
+</n></n>
 
 ---
 
 # Point-Voxel Convolution
+
 ![fig3](/assets/images/2021-04-26-pvcnn-neurips/fig3.png)
+
 - 기존 voxel- 과 point-based 방법들의 bottleneck들에 대해 분석을 기반으로, hardware-efficient한 primitive를 제안함 -> Point-Voxel Convolution (PVConv)
   - point-based 방법들의 장점(small memory footprint)와 voxel-based 방법들의 장점(good data locality and regularity)를 섞음
 
-<br>
+</n>
 
 - 즉, 위 그림처럼 2개의 brach를 통해서 voxel-based feature (**coarse-grained feature**) + point-wise feaeture (**fine-grained feature**) 를 combine함
   - upper voxel-based branch
@@ -109,12 +113,11 @@ tags:
       - ***<u>원래는 주변 정보들 indexing(for NN)하는 작업들이 issue였는데, 여기에서는 그 작업을 안함</u>***
       - ***주변 정보들 활용은 voxel-based branch에서 다룸***
 
-<br>
-<br>
-
-
+</n>
+</n>
 
 ## Voxel-Based Feature Aggregation
+
 1. Normalization
     - 모든 point들을 0부터 1사이의 normalized된 unit sphere 공간상으로 normalization 시켜줌
     - 각각의 point 들은 {$p_k$, $f_k$} 로 구성되어 있고, $p_k$는 coordinate 정보, $f_k$는 feature 정보임
@@ -139,12 +142,13 @@ tags:
     - 단순히 nearest neighbors 방법으로 interpolation하면서 voxel-to-point mapping 할 수 있지만, 이는 같은 voxel 안에 들어있는 point 들은 계속 같은 feature를 share하게 만들기 때문에 제대로 voxel-to-point mapping이 이뤄지지 못 함
     - 그래서 각각의 point들에게 mapping 될 feature들이 distinct 하도록 하기 위해, trilinear interpolation을 통해 voxel grid를 point로 변화시킴
 
-* 여기에서 중요한 점!, voxelization & devoxelization 모두 differentiable함
+- 여기에서 중요한 점!, voxelization & devoxelization 모두 differentiable함
 
-<br>
-<br>
+</n>
+</n>
 
 ## Point-Based Feature Transformation
+
 - voxel-based feature aggregation branch 는 주변 정보들을 coarse granularity(coarse-grained라고 생각하면 됨, [[Granuarity 다른 설명 참고](https://lastyouth.tistory.com/4)]) 한 상태에서 융합함 (voxelization & devoxelization)
   - voxelization 자체가 information loss가 들어가는 부분이고, point coordinate를 approximation해서 voxel-grid 안에 넣는 작업이기 때문에, coarse-grained 라는 표현이 맞는거 같음
   - 또한, 위 voxel-based branch는 devoxelization등을 통해 주변 점들의 정보를 활용하여 interpolation을 진행하기 때문에, 최종적으로는 coarse grained 한 정보를 추출하는 branch라 할 수 있음
@@ -154,30 +158,38 @@ tags:
   - corase-grained voxel-based 정보를 보완하기 위해!
 
 ## Feature Fusion
+
 - 최종적으로는 addition을 통해서 각각의 branch에서의 서로의 단점들을 보완할 수 있다.
 
-<br>
-<br>
+</n>
+</n>
 
 ---
 # Summary
+
 ### voxel-based branch
-  - 주변점들 활용
-  - coarse-grained feature 추출
+
+- 주변점들 활용
+- coarse-grained feature 추출
+
 ### point-based branch
-  - MLP를 통해 각각의 point들에 대한 feature 추출
-  - high-resolution point 정보 활용 가능
-  - finer-grained feature 추출
+
+- MLP를 통해 각각의 point들에 대한 feature 추출
+- high-resolution point 정보 활용 가능
+- finer-grained feature 추출
+
 ---
 
-<br>
-<br>
+</n></n>
 
 ---
 
 # Discussion
+
 ## Efficiency: Better Data Locality and Regularity. 
+
 ### [Time Complexity]
+
 - voxelization & devoxelization 방법
   - point들을 한번만 쫙 확인하고 voxel grid에 넣기 때문에, O(n) 복잡도
     - n은 point 수
@@ -188,6 +200,7 @@ tags:
 
 
 ## Effectiveness: Keeping Points in High Resolution.
+
 - point-based branch는 MLP로 구성되어 있고, 가장 큰 장점은 **주변 정보들을 다룰 수 있는 능력도 가지고 있으면서 (thanks to voxel-based branch)** network 안에서 point의 수를 계속 유지할 수 있다는 점
 - PointNet++ 과 비교해보자
   - 2048 point를 가지고 한다고 하면, 
@@ -199,44 +212,48 @@ tags:
 
 ---
 
-
-<br>
-<br>
+</n></n>
 
 # Experiments
+
 ## Obejct Part Segmentation: ShapeNetPart
-  - PointNet에서 MLP를 PVConv로 바꾸고, 3D-Unet구조
+
+- PointNet에서 MLP를 PVConv로 바꾸고, 3D-Unet구조
   
 ![tab1](/assets/images/2021-04-26-pvcnn-neurips/tab1.png)
 ![fig4](/assets/images/2021-04-26-pvcnn-neurips/fig4.png)
 
 ## Scene Segmentation: S3DIS
-  - Area 5에 대해서 test 진행
-  - PointNet++에서 PVConv를 넣어서, PVCNN++로 만들어서 진행
-    - 즉, SA 모듈 들어감
-    - PointNet layer에서의 MLP 를 PVConv로 바꾼것임
+
+- Area 5에 대해서 test 진행
+- PointNet++에서 PVConv를 넣어서, PVCNN++로 만들어서 진행
+  - 즉, SA 모듈 들어감
+  - PointNet layer에서의 MLP 를 PVConv로 바꾼것임
 
 ![tab4](/assets/images/2021-04-26-pvcnn-neurips/tab4.png)
 ![fig7](/assets/images/2021-04-26-pvcnn-neurips/fig7.png)
 
 ## 3D Object Detection: KITTI
-  - [[Qi et al. (F-PointNet)](https://openaccess.thecvf.com/content_cvpr_2018/papers/Qi_Frustum_PointNets_for_CVPR_2018_paper.pdf)] 처럼 training set 에서 val set을 만들었음
-    - val 에서의 instance들은 training set에 포함되어 있지 않음
-    - 위의 F-PointNet 기반으로 2가지의 PVCNN 버전 구축\
-      (a). Efficient Version
-        - instance segmentation network 에서 오직 MLP만 PVConv로 바꾼 것\
-      (b). Complete Version
-        - 위에서 더 나아가서, box estimation network에서의 MLP도 PVConv로 바꾼 것
-        
+
+- [[Qi et al. (F-PointNet)](https://openaccess.thecvf.com/content_cvpr_2018/papers/Qi_Frustum_PointNets_for_CVPR_2018_paper.pdf)] 처럼 training set 에서 val set을 만들었음
+  - val 에서의 instance들은 training set에 포함되어 있지 않음
+  - 위의 F-PointNet 기반으로 2가지의 PVCNN 버전 구축\
+    (a). Efficient Version
+    - instance segmentation network 에서 오직 MLP만 PVConv로 바꾼 것
+
+    (b). Complete Version
+    - 위에서 더 나아가서, box estimation network에서의 MLP도 PVConv로 바꾼 것
+
 ![tab5](/assets/images/2021-04-26-pvcnn-neurips/tab5.png)
 
 ---
 
-<br>
-<br>
+</n>
 
 ---
+
 # Conclusion
+
 - 이 논문에서는 fast and efficient 3D deep learning을 위한 Point-Voxel CNN (PVCNN) 제안하였음
 - voxel-based branch (-> dense, regular voxel representation), point-based branch (-> sparse, irregular point representation) 도입으로 memory footprint를 줄이고, irregular memory access 영향도 줄임
 - 이 논문을 통해, voxel-based convolution이 비효율적이다라는 고정관념을 깨고, 

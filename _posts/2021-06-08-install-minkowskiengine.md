@@ -7,13 +7,19 @@ categories:
 
 ---
 
-'''
+
 https://github.com/NVIDIA/MinkowskiEngine#anaconda
-'''
+
 위 링크를 참고하길 바라며...
 
+<br>
+<br>
 
 여기에서는 Minkowski 0.5.1 + pytorch 1.7.1 설치방법 정리해본다
+
+<br>
+<br>
+
 # Install Minkowski Engine
 
 정식 document 사이트에서 말하길,
@@ -27,21 +33,21 @@ NVIDIA 3090 GPU를 사용한다면,
 
 ---
 * CUDA 11.2 설치 방법
-```
+
 https://developer.nvidia.com/cuda-11.2.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal
-```
+
 또는
-```
+
 https://developer.nvidia.com/cuda-toolkit-archive
-```
+
 에서 원하는 cuda 버전 찾아서 설치하면 됨
 
 ---
 
 여기에서보면, cuda 버전이 맞지는 않지만 Minkowski Engine Github Repository issue 탭에서 관련 내용 참고하였음
-```
+
 https://github.com/NVIDIA/MinkowskiEngine/issues/282
-```
+
 ---
 
 1. conda 가상환경
@@ -62,6 +68,10 @@ pip install -U git+https://github.com/NVIDIA/MinkowskiEngine -v --no-deps --inst
 ### 주의해야할 점
 - openblas를 먼저 설치하고 pytorch를 설치하면, pytorch 설치 안됨(openblas 버전 때문에)
 ---
+
+
+<br>
+<br>
 
 # 설치확인
 ```
@@ -118,6 +128,9 @@ MinkowskiEngine compiled with CUDA Support: True
 NVCC version MinkowskiEngine is compiled: 11020
 CUDART version MinkowskiEngine is compiled: 11020
 ```
+
+# Minkowski Engine 을 활용한 사례들
+- https://github.com/NVIDIA/MinkowskiEngine/wiki/Usage
 
 # facebook Hydra 설치
 ```

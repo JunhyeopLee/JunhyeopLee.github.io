@@ -4,6 +4,7 @@ categories:
   - Paper Review
 tags:
   - NeurIPS
+use_math: true
 ---
 
 ---

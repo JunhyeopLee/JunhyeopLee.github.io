@@ -5,6 +5,7 @@ categories:
 tag:
   - Convolution
   - Sparse Convolution
+use_math: true
 ---
 
 

@@ -33,32 +33,26 @@ tag:
 - 여기에서의 Sparse Convolution은 **spatially-sparse data**를 기반으로 함
 - 이러한 data를 다루기 위해 sparse tensor의 개념을 도입
   - 이 sparse convolution 논문에서 개념 도입: [[3D Semantic Segmentation with
-Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711.10275.pdf)]
+Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711.10275.pdf)]  
 
-</n>
-</n>
 
 ---
 # Sparse Tensor Networks
 
-- 일반적인 convolutional network(dense tensor) 들하고의 차이점은 sparsity management에 있음
+- 일반적인 convolutional network(dense tensor) 들하고의 차이점은 sparsity management에 있음  
 
-</n>
 
 | 구분 | Conventional network | Sparse Tensor Network |
 |---|:---:|---:|
 | `Tensor` | Dense tensor | Sparse tensor |
-| `Random Access` | Easy(e.g., pixel grid) | Difficult(e.g., require hash-table or KD-tree) |
+| `Random Access` | Easy(e.g., pixel grid) | Difficult(e.g., require hash-table or KD-tree) |  
 
-</n>
 
 - 위 table 처럼, 무작위로 배치되어 있는 element에 접근하는것은
   - dense tensor의 경우에는 쉽지만,
   - sparse tensor의 경우에는 상대적으로 복잡한 data structure를 담고 있는 무언가가 필요함 (hash-table 또는 KD-tree, 또는 간단하게 KNN)
-- 즉, sparse data를 다룰 때, convolution 연산을 위해 주변점 찾는 것 + 간단하게 max-pooling하는것은 더이상 trivial operation이 아니게 된다는 점
+- 즉, sparse data를 다룰 때, convolution 연산을 위해 주변점 찾는 것 + 간단하게 max-pooling하는것은 더이상 trivial operation이 아니게 된다는 점  
 
-</n>
-</n>
 
 ---
 
@@ -72,15 +66,13 @@ Submanifold Sparse Convolutional Networks, CVPR 2018](https://arxiv.org/pdf/1711
 ![eq1](/assets/images/2021-04-27-sparse-tensor/eq1.png)
 
 - COO format: Coordinate list
-![eq2](/assets/images/2021-04-27-sparse-tensor/eq2.png)
+![eq2](/assets/images/2021-04-27-sparse-tensor/eq2.png)  
 
-</n>
 
 ### 2. Tensor Stride
 
 image stride 개념과 같음
 
-</n>
 
 ### 3. Kernel Map
 
@@ -91,10 +83,8 @@ image stride 개념과 같음
 - 위 그림을 정리해보면
   - I:0→0, B:1→0, B:0→2,, D:3→1,, H:2→3 ($I$→$O$)
 - coordinate mapping, ($I → O$): $I$에서의 integer index를 활용해서, 어떤 위치에 있는 coordinate가 다음 tensor $O$의 integer index에 mapping되는지 list-up
-- mapping list를 통해 $F_I$ 가 $F_O$에 mapping 됨
+- mapping list를 통해 $F_I$ 가 $F_O$에 mapping 됨  
 
-</n>
-</n>
 
 ### 4. Sparse Tensor Network Layers
 
@@ -123,9 +113,8 @@ image stride 개념과 같음
 
 1. $C^{out}$은 dynamically 생성될 수 있다.(이는 generative task에 대해서는 crucial함)
 2. Output coordinates, $C^{out}$ 은 $C^{in}$과 독립적으로 무작위(arbitrarily)하게 정의될 수 있다.
-3. Convolution kernel의 shape은 무작위로 $N^D$ 형식으로 정의될 수 있다.
+3. Convolution kernel의 shape은 무작위로 $N^D$ 형식으로 정의될 수 있다.  
 
-</n>
 
 ---
 
@@ -171,10 +160,7 @@ A coordinate manager generates a new sparse tensor and finds neighbors among coo
   - 시간복잡도 줄이기 위해 사용
 - Sparse Convolution을 위한 Kernel Map은 위의 Im2Col() 함수와 동일한 역할을 수행한다.
   - 한 점 $u$ 주변의 존재하는 coordinate, $N^D(u)∩C^{in}$ 을 찾기 위해 $N(u)$를 정의하는 과정
-    - 즉 모든 점에 대해 수행해야하기 때문에, 각각의 데이터 $u$마다 $N(u)$를 정의하는 작업 (iterate)
-
-</n>
-</n>
+    - 즉 모든 점에 대해 수행해야하기 때문에, 각각의 데이터 $u$마다 $N(u)$를 정의하는 작업 (iterate)  
 
 ---
 

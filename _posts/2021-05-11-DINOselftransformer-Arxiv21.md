@@ -30,7 +30,6 @@ NLP 연구분야에서부터 시작된 transformer 의 성공은 vision 분야�
 
 하지만 이번 포스트를 통해 소개하는 논문은 이러한 점에 집중했고, Unsupervised learning 방법으로 transformer를 적용, pretraining하는 방법론은 제기하였으며, 기존의 다른 vision transformer 계열들보다 supervised approache와의 gap을 상당히 줄였음을 보여준다.
 
-</n>
 
 # Introduction
 

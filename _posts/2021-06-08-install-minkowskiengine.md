@@ -9,15 +9,13 @@ tags:
 
 https://github.com/NVIDIA/MinkowskiEngine#anaconda
 
-위 링크를 참고하길 바라며...
+위 링크를 참고하길 바라며...  
 
-</n>
+여기에서는 Minkowski 0.5.1 + pytorch 1.7.1 설치방법 정리해본다  
 
-여기에서는 Minkowski 0.5.1 + pytorch 1.7.1 설치방법 정리해본다
+---
 
-</n>
-
-# Install Minkowski Engine
+# Minkowski Engine 설치하기
 
 정식 document 사이트에서 말하길,
 
@@ -71,8 +69,6 @@ pip install -U git+https://github.com/NVIDIA/MinkowskiEngine -v --no-deps --inst
 - openblas를 먼저 설치하고 pytorch를 설치하면, pytorch 설치 안됨(openblas 버전 때문에)
 
 ---
-
-</n>
 
 # 설치확인
 

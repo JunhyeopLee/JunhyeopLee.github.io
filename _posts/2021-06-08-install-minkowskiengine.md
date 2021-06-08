@@ -52,17 +52,17 @@ https://github.com/NVIDIA/MinkowskiEngine/issues/282
 1. conda 가상환경
 
 ```bash
-# 가상환경 
+### 가상환경 
 conda create -n mk051 python=3.8
 conda activate mk051
 
-# Openblas 및 pytorch 설치
+### Openblas 및 pytorch 설치
 conda install pytorch==1.7.1 torchvision==0.8.2 cudatoolkit=11.0 -c pytorch
 
 conda install openblas-devel -c anaconda
 
 
-# Minkowski Engine 설치
+### Minkowski Engine 설치
 pip install -U git+https://github.com/NVIDIA/MinkowskiEngine -v --no-deps --install-option="--blas_include_dirs=${CONDA_PREFIX}/include" --install-option="--blas=openblas"
 ```
 
@@ -77,16 +77,16 @@ pip install -U git+https://github.com/NVIDIA/MinkowskiEngine -v --no-deps --inst
 # 설치확인
 
 ```python
-# pytorch 확인
+### pytorch 확인
 import torch
 torch.__version__
 torch.cuda.is_available()
 
-# MinkowskiEngine 설치 확인
+### MinkowskiEngine 설치 확인
 import MinkowskiEngine as ME
 ME.__version__
 
-# ME Diagnostic
+### ME Diagnostic
 import MinkowskiEngine as ME
 ME.print_diagnostics()
 ```
